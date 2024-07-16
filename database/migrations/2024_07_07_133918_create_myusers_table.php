@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string(column: "login");
             $table->string(column: "email");
 			$table->string(column: "password");
-			$table->string(column: "rights"); 
+			$table->tinyInteger(column: "right"); 
+			$table->string(column: "local"); 
             $table->timestamps();
         });
     }

@@ -16,6 +16,8 @@ return new class extends Migration
 			$table->string(column: "name"); 
 			$table->string(column: "group"); 
 			$table->string(column: "local"); 
+			$table->tinyInteger(column: "right");
+			$table->string(column: "created_by");
             $table->timestamps();
         });
     }

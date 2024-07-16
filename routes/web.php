@@ -38,7 +38,10 @@ Route::get('/roles', [MainController::class, 'roles'])->name('roles');
 Route::post('/save/roles', [MainController::class, 'save_roles'])->name('save_roles');
 
 Route::get('/user', [MainController::class, 'user'])->name('user');
-Route::post('/save/user', [MainController::class, 'save_user'])->name('save_user');
+Route::post('/user/login', [MainController::class, 'user_login'])->name('user_login');
+Route::get('/user/exit', [MainController::class, 'user_exit'])->name('user_exit');
+Route::get('/user/registration', [MainController::class, 'user_registration'])->name('user_registration');
+Route::post('/user/registration/save', [MainController::class, 'user_registration_save'])->name('user_registration_save');
 
 Route::get('/play', [MainController::class, 'play'])->name('play');
 Route::post('/play/launch', [MainController::class, 'play_launch'])->name('play_launch');

@@ -14,20 +14,22 @@ const Hosts =(props) => {
 	
 	return (
 		<div>
+			<h1>Play page</h1>
+			<h1>Selected user: {props.user}</h1>
 			<div>
-			<form onSubmit={saveData}>
-				<select value={host}  onChange={(e)=>setHost(e.target.value)}>
-					<option disabled>Host</option>
-					{props.hosts.map((el) => (
-					<option key={el.id} value={el.id}>{el.name}</option>))}
-				</select>
-				<select value={role}  onChange={(e)=>setRole(e.target.value)}>
-					<option disabled>Role</option>
-					{props.roles.map((el) => (
-					<option key={el.id} value={el.id}>{el.name}</option>))}
-				</select>
-				<button>Запустить</button>
-			</form>
+				<form onSubmit={saveData}>
+					<select value={host}  onChange={(e)=>setHost(e.target.value)}>
+						<option disabled>Host</option>
+						{props.hosts.map((el) => (
+						<option key={el.id} value={el.id}>{el.name}</option>))}
+					</select>
+					<select value={role}  onChange={(e)=>setRole(e.target.value)}>
+						<option disabled>Role</option>
+						{props.roles.map((el) => (
+						<option key={el.id} value={el.id}>{el.name}</option>))}
+					</select>
+					<button>Запустить</button>
+				</form>
 			</div>
 		</div>
 	)
