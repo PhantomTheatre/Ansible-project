@@ -1,18 +1,16 @@
 import React, { useState } from "react";
 import { Link, router, usePage} from '@inertiajs/react';
 
-const Registration = (props) => {
+const UserEdit = (props) => {
 	const { auth } = usePage().props;
 	
-	const [login, setLogin] = useState("");
-	const [password, setPassword] = useState("");
-	const [email, setEmail] = useState("");
-	const [right, setRight] = useState("");
-	const [local, setLocal] = useState("");
+	const [login, setLogin] = useState(props.db.login);
+	const [password, setPassword] = useState(props.db.password);
+	const [email, setEmail] = useState(props.db.email);
 	
 	const saveData = (e) => {
 		e.preventDefault();
-		router.post("/user/registration/save", {login, password, email, right, local});
+		router.post("/user/edit/save", {login, password, email});
 	};
 	
 	return (
@@ -34,14 +32,6 @@ const Registration = (props) => {
 					value={email} 
 					onChange={(e)=>setEmail(e.target.value)} 
 					type="email" name="email" id="email" placeholder="Email"/>
-				<input 
-					value={right} 
-					onChange={(e)=>setRight(e.target.value)} 
-					type="right" name="right" id="right" placeholder="Right"/>
-				<input 
-					value={local} 
-					onChange={(e)=>setLocal(e.target.value)} 
-					type="local" name="local" id="local" placeholder="Local"/>
 				<button>Create User</button>
 			</form>
 			<div><Link href="/user">
@@ -50,5 +40,4 @@ const Registration = (props) => {
 		</div>
 	)
 }
-
-export default Registration;
+export default UserEdit;

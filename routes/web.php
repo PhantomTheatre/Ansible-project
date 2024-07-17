@@ -33,15 +33,30 @@ Route::post('/save', [MainController::class, 'save'])->name('save');
 
 Route::get('/hosts', [MainController::class, 'hosts'])->name('hosts');
 Route::post('/save/hosts', [MainController::class, 'save_hosts'])->name('save_hosts');
+Route::get('/hosts/edit', [MainController::class, 'hosts_edit'])->name('hosts_edit');
+Route::post('/hosts/edit/save', [MainController::class, 'hosts_edit_save'])->name('hosts_edit_save');
 
 Route::get('/roles', [MainController::class, 'roles'])->name('roles');
 Route::post('/save/roles', [MainController::class, 'save_roles'])->name('save_roles');
+Route::get('/roles/edit', [MainController::class, 'roles_edit'])->name('roles_edit');
+Route::post('/roles/edit/save', [MainController::class, 'roles_edit_save'])->name('roles_edit_save');
 
 Route::get('/user', [MainController::class, 'user'])->name('user');
 Route::post('/user/login', [MainController::class, 'user_login'])->name('user_login');
 Route::get('/user/exit', [MainController::class, 'user_exit'])->name('user_exit');
 Route::get('/user/registration', [MainController::class, 'user_registration'])->name('user_registration');
 Route::post('/user/registration/save', [MainController::class, 'user_registration_save'])->name('user_registration_save');
+Route::get('/user/edit', [MainController::class, 'user_edit'])->name('user_edit');
+Route::post('/user/edit/save', [MainController::class, 'user_edit_save'])->name('user_edit_save');
+
+Route::get('/local', [MainController::class, 'local'])->name('local');
+Route::post('/local/login', [MainController::class, 'local_login'])->name('local_login');
+Route::get('/local/exit', [MainController::class, 'local_exit'])->name('local_exit');
+Route::get('/local/create', [MainController::class, 'local_create'])->name('local_create');
+Route::post('/local/create/save', [MainController::class, 'local_create_save'])->name('local_create_save');
+Route::post('/local/edit', [MainController::class, 'local_edit'])->name('local_edit');
+Route::post('/local/edit/save', [MainController::class, 'local_edit_save'])->name('local_edit_save');
+
 
 Route::get('/play', [MainController::class, 'play'])->name('play');
 Route::post('/play/launch', [MainController::class, 'play_launch'])->name('play_launch');

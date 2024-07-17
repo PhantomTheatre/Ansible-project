@@ -16,6 +16,8 @@ const Hosts =(props) => {
 		<div>
 			<h1>Play page</h1>
 			<h1>Selected user: {props.user}</h1>
+			{props.local != "none" &&
+			<h1>Selected local: {props.local}</h1>}
 			<div>
 				<form onSubmit={saveData}>
 					<select value={host}  onChange={(e)=>setHost(e.target.value)}>

@@ -21,11 +21,18 @@ const Hosts =(props) => {
 		e.preventDefault();
 		router.post("/save/hosts", { name, ip, login, password, group, local, right, created_by});
 	};
+	const [host, setHost] = useState(""); 
+	const EditHost = (e) => {
+		e.preventDefault();
+		router.post("/hosts/edit", { host});
+	};
 	
 	return (
 		<div>
 			<h1>Hosts page</h1>
 			<h1>Selected user: {props.user}</h1>
+			{props.local != "none" &&
+			<h1>Selected local: {props.local}</h1>}
 			{props.user == "none" ? 
 			(<div>
 				<h1>You must login to create hosts</h1>
@@ -70,6 +77,18 @@ const Hosts =(props) => {
 						type="created_by" name="created_by" id="created_by" placeholder="Created by"/>
 					<button>Добавить</button>
 				</form>
+				<div>
+					<form onSubmit={EditHost}>
+					<select value={host}  onChange={(e)=>setHost(e.target.value)}>
+						<option disabled>Host</option>
+						{props.hosts.map((el) => (
+						<option key={el.id} value={el.id}>{el.name}</option>))}
+					</select>
+					</form>
+					<Link href="/hosts/edit">
+						 Edit
+					</Link>
+				</div>
 			</div>)
 			}
 			<div><Link href="/">

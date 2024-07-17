@@ -7,6 +7,8 @@ export default function MainComponent(props) {
 		<div>
 			<h1>Main Page</h1>
 			<h1>Selected user: {props.user}</h1>
+			{props.local != "none" &&
+			<h1>Selected local: {props.local}</h1>}
 			<div><Link href="/hosts">
 				Hosts
 			</Link></div>
@@ -15,6 +17,9 @@ export default function MainComponent(props) {
 			</Link></div>
 			<div><Link href="/user">
 				User
+			</Link></div>
+			<div><Link href="/local">
+				Local
 			</Link></div>
 			<div><Link href="/play">
 				Play
