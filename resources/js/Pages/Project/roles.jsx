@@ -10,27 +10,58 @@ const Roles =(props) => {
 	const [name, setName] = useState("");
 	const [group, setGroup] = useState("");
 	const [local, setLocal] = useState(""); 
-	const [tasks, setTasks] = useState(""); 
+	const [task, setTask] = useState(""); 
 	const [right, setRight] = useState(""); 
 	const [created_by, setCreated_by] = useState("");
 	const [type, setType] = useState("file"); 
 	const [code, setCode] = useState("// some comment");	
+	const [id, setId] = useState(""); 
 	
 	const saveData = (e) => {
 		e.preventDefault();
-		const formData = new FormData();
-		formData.append('file', tasks);
-		setTasks(formData);
-		router.post("/save/roles", {name, group, local, tasks,  right, created_by, type, code}, {forceFormData: true,});
+		if (role == "") {
+			const formData = new FormData();
+			formData.append('file', task);
+			setTask(formData);
+			router.post("/roles/save", {name, group, local, task,  right, created_by, type, code}, {forceFormData: true,});
+		} else {
+			router.post("/roles/edit", {name, group, local, task,  right, created_by, type, code, id}, {forceFormData: true,});
+		}
 	};
 	
 	const [role, setRole] = useState(""); 
-	const EditRole = (e) => {
-		e.preventDefault();
-		router.post("/roles/edit", { role});
+	const GetRole = (e) =>{
+		setRole(e);
+		props.roles.forEach((el) =>{
+			if (el.id == e) {
+				setName(el.name);
+				setGroup(el.group);
+				setLocal(el.local);
+				setRight(el.right);
+				setCreated_by(el.created_by);
+				setCode(props.codes[el.id]);
+				setId(el.id);
+				const formData = new FormData();
+				formData.append('file', task);
+				setTask(formData);
+			};
+		}); 
+	};
+			
+	const Reset = () => {
+				setRole("");
+				setName("");
+				setGroup("");
+				setLocal("");
+				setRight("");
+				setCreated_by("");
+				setId("");
+				setCode("// some comment" );
 	};
 	
-	
+		const Delete = () => {
+		router.post("/roles/delete", { role });
+	};
 	
 	return (
 		<div>
@@ -56,15 +87,16 @@ const Roles =(props) => {
 				<form onSubmit={saveData}>
 					{type == "file" ?
 						(<input
-							onChange={(e)=>setTasks(e.target.files[0])} 
-							type="file" name="tasks" id="tasks"/>)
+							onChange={(e)=>setTask(e.target.files[0])} 
+							type="file" name="task" id="task"/>)
 					: (
 						<Editor 
 							onChange={(value, event) => {setCode(value)}} 
 							theme="vs-dark"
 							height="40vh" 
 							width="30vw"
-							defaultLanguage="yaml" defaultValue="// some comment" />
+							defaultLanguage="yaml" defaultValue="// some comment" 
+							value={code}  />
 					)}
 					<input 
 						value={name} 
@@ -86,25 +118,33 @@ const Roles =(props) => {
 						value={created_by} 
 						onChange={(e)=>setCreated_by(e.target.value)} 
 						type="created_by" name="created_by" id="created_by" placeholder="Created by"/>
-					<button>Добавить</button>
+					{(role == "") ?
+						(<button>Добавить</button>)
+					: (<button>Обновить</button>)}
 				</form>
 				<div>
-					<form onSubmit={EditRole}>
-					<select value={role}  onChange={(e)=>setRole(e.target.value)}>
-						<option disabled>Role</option>
+					<select value={role}  onChange={(e)=>GetRole(e.target.value)}>
+						<option selected hidden>Role ...</option>
+						<option disabled>Role ...</option>
 						{props.roles.map((el) => (
 						<option key={el.id} value={el.id}>{el.name}</option>))}
 					</select>
-					</form>
-					<Link href="/roles/edit">
-						 Edit
-					</Link>
+					{(role != "") ?
+						(
+						<div>
+							<button onClick={Reset}>Reset</button>
+							<div><button onClick={Delete}>Delete</button></div>
+						</div>
+						) :  (
+						<div>
+							<Link href="/">
+								Back
+							</Link>
+						</div>
+					)}
 				</div>
 			</div>)
 			}
-			<div><Link href="/">
-				Back
-			</Link></div>
 		</div>
 	)
 }

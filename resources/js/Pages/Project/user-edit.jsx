@@ -34,6 +34,9 @@ const UserEdit = (props) => {
 					type="email" name="email" id="email" placeholder="Email"/>
 				<button>Create User</button>
 			</form>
+			<div><Link href="/user/delete">
+				Delete
+			</Link></div>
 			<div><Link href="/user">
 				Back
 			</Link></div>

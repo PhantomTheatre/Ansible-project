@@ -41,6 +41,7 @@ const EditRoles = (props) => {
 							type="file" name="task" id="task"/>)
 					: (
 						<Editor 
+							id="editor"
 							onChange={(value, event) => {setCode(value)}} 
 							theme="vs-dark"
 							height="40vh" 

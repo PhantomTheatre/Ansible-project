@@ -16,15 +16,46 @@ const Hosts =(props) => {
 	const [local, setLocal] = useState(""); 
 	const [right, setRight] = useState(""); 
 	const [created_by, setCreated_by] = useState(""); 
+	const [id, setId] = useState(""); 
 	
 	const saveData = (e) => {
 		e.preventDefault();
-		router.post("/save/hosts", { name, ip, login, password, group, local, right, created_by});
+		if (host == "") {
+			router.post("/hosts/save", { name, ip, login, password, group, local, right, created_by});
+		} else {
+			router.post("/hosts/edit", { name, ip, login, password, group, local, right, created_by, id});}
 	};
 	const [host, setHost] = useState(""); 
-	const EditHost = (e) => {
-		e.preventDefault();
-		router.post("/hosts/edit", { host});
+	const GetHost = (e) =>{
+		setHost(e);
+		props.hosts.forEach((el) =>{
+			if (el.id == e) {
+				setName(el.name);
+				setIp(el.ip);
+				setLogin(el.login);
+				setPassword(el.password);
+				setGroup(el.group);
+				setLocal(el.local);
+				setRight(el.right);
+				setCreated_by(el.created_by);
+				setId(el.id);
+			};
+		}); 
+	};
+			
+	const Reset = () => {
+		setName("");
+		setIp("");
+		setLogin("");
+		setPassword("");
+		setGroup("");
+		setLocal("");
+		setRight("");
+		setCreated_by("");
+		setHost("");
+	};
+	const Delete = () => {
+		router.post("/hosts/delete", { host });
 	};
 	
 	return (
@@ -75,25 +106,33 @@ const Hosts =(props) => {
 						value={created_by} 
 						onChange={(e)=>setCreated_by(e.target.value)} 
 						type="created_by" name="created_by" id="created_by" placeholder="Created by"/>
-					<button>Добавить</button>
+						{(host == "") ?
+						(<button>Добавить</button>)
+						: (<button>Изменить</button>) }
 				</form>
 				<div>
-					<form onSubmit={EditHost}>
-					<select value={host}  onChange={(e)=>setHost(e.target.value)}>
-						<option disabled>Host</option>
+					<select value={host}  onChange={(e)=>GetHost(e.target.value)}>
+						<option selected hidden>Host ...</option>
+						<option disabled>Host ...</option>
 						{props.hosts.map((el) => (
 						<option key={el.id} value={el.id}>{el.name}</option>))}
 					</select>
-					</form>
-					<Link href="/hosts/edit">
-						 Edit
-					</Link>
+					{(host != "") ?
+						(
+						<div>
+							<button onClick={Reset}>Reset</button>
+							<div><button onClick={Delete}>Delete</button></div>
+						</div>
+						) :  (
+						<div>
+							<Link href="/">
+								Back
+							</Link>
+						</div>
+					)}
 				</div>
 			</div>)
 			}
-			<div><Link href="/">
-				Back
-			</Link></div>
 		</div>
 	)
 }
