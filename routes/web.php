@@ -50,13 +50,12 @@ Route::post('/user/registration', [MainController::class, 'user_registration'])-
 
 Route::get('/local', [MainController::class, 'local'])->name('local');
 Route::post('/local/login', [MainController::class, 'local_login'])->name('local_login');
-Route::get('/local/exit', [MainController::class, 'local_exit'])->name('local_exit');
-Route::get('/local/create', [MainController::class, 'local_create'])->name('local_create');
-Route::post('/local/create/save', [MainController::class, 'local_create_save'])->name('local_create_save');
-Route::post('/local/edit', [MainController::class, 'local_edit'])->name('local_edit');
-Route::post('/local/edit/save', [MainController::class, 'local_edit_save'])->name('local_edit_save');
-Route::get('/local/rights/edit', [MainController::class, 'local_rights_edit'])->name('local_rights_edit');
-Route::post('/local/rights/edit/save', [MainController::class, 'local_rights_edit_save'])->name('local_rights_edit_save');
+Route::post('/local/create', [MainController::class, 'local_create'])->name('local_create');
+Route::post('/local/exit', [MainController::class, 'local_exit'])->name('local_exit');
+Route::post('/local/edit/local', [MainController::class, 'local_edit_local'])->name('local_edit_local');
+Route::post('/local/edit/user', [MainController::class, 'local_edit_user'])->name('local_edit_user');
+Route::post('/local/edit/host', [MainController::class, 'local_edit_host'])->name('local_edit_host');
+Route::post('/local/edit/role', [MainController::class, 'local_edit_role'])->name('local_edit_role');
 
 
 

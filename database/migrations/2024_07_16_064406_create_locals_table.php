@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
 			$table->string(column: "name"); 
 			$table->string(column: "password"); 
-			$table->string(column: "created_by"); 
+			$table->string(column: "admin"); 
             $table->timestamps();
         });
     }

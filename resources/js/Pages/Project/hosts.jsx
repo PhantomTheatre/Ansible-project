@@ -13,17 +13,15 @@ const Hosts =(props) => {
 	const [login, setLogin] = useState("");
 	const [password, setPassword] = useState("");
 	const [group, setGroup] = useState("");
-	const [local, setLocal] = useState(""); 
-	const [right, setRight] = useState(""); 
-	const [created_by, setCreated_by] = useState(""); 
+	const [global_, setGlobal] = useState(""); 
 	const [id, setId] = useState(""); 
 	
 	const saveData = (e) => {
 		e.preventDefault();
 		if (host == "") {
-			router.post("/hosts/save", { name, ip, login, password, group, local, right, created_by});
+			router.post("/hosts/save", { name, ip, login, password, group, global_});
 		} else {
-			router.post("/hosts/edit", { name, ip, login, password, group, local, right, created_by, id});}
+			router.post("/hosts/edit", { name, ip, login, password, group, id, global_});}
 	};
 	const [host, setHost] = useState(""); 
 	const GetHost = (e) =>{
@@ -35,9 +33,7 @@ const Hosts =(props) => {
 				setLogin(el.login);
 				setPassword(el.password);
 				setGroup(el.group);
-				setLocal(el.local);
-				setRight(el.right);
-				setCreated_by(el.created_by);
+				setGlobal(el.global);
 				setId(el.id);
 			};
 		}); 
@@ -49,9 +45,7 @@ const Hosts =(props) => {
 		setLogin("");
 		setPassword("");
 		setGroup("");
-		setLocal("");
-		setRight("");
-		setCreated_by("");
+		setGlobal("");
 		setHost("");
 	};
 	const Delete = () => {
@@ -95,17 +89,9 @@ const Hosts =(props) => {
 						onChange={(e)=>setGroup(e.target.value)} 
 						type="group" name="group" id="group" placeholder="Group"/>
 					<input 
-						value={local} 
-						onChange={(e)=>setLocal(e.target.value)} 
-						type="local" name="local" id="local" placeholder="Local"/>
-					<input 
-						value={right} 
-						onChange={(e)=>setRight(e.target.value)} 
-						type="right" name="right" id="right" placeholder="Right"/>
-					<input 
-						value={created_by} 
-						onChange={(e)=>setCreated_by(e.target.value)} 
-						type="created_by" name="created_by" id="created_by" placeholder="Created by"/>
+						value={global_} 
+						onChange={(e)=>setGlobal(e.target.value)} 
+						type="global_" name="global_" id="global_" placeholder="Global"/>
 						{(host == "") ?
 						(<button>Добавить</button>)
 						: (<button>Изменить</button>) }
@@ -120,7 +106,7 @@ const Hosts =(props) => {
 					{(host != "") ?
 						(
 						<div>
-							<button onClick={Reset}>Reset</button>
+							<button onClick={Reset}>Back</button>
 							<div><button onClick={Delete}>Delete</button></div>
 						</div>
 						) :  (

@@ -8,6 +8,8 @@ const User = (props) => {
 	const [password, setPassword] = useState("");
 	const [email, setEmail] = useState("");
 	
+	const [type, setType] = useState("none");
+	
 	const Login = (e) => {
 		e.preventDefault();
 		router.post("/user/login", {login, password});
@@ -42,8 +44,7 @@ const User = (props) => {
 		setPassword(props.db_user.password);
 		setEmail(props.db_user.email);
 	};
-	
-	const [type, setType] = useState("none");
+
 	
 	return (
 		<div>
@@ -76,7 +77,6 @@ const User = (props) => {
 				) : (type == "registration") ? (
 						<div>
 							<input 
-								form="form"
 								value={email} 
 								onChange={(e)=>setEmail(e.target.value)} 
 								type="email" name="email" id="email" placeholder="Email"/>

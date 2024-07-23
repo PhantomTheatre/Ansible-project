@@ -9,10 +9,8 @@ const Roles =(props) => {
 	
 	const [name, setName] = useState("");
 	const [group, setGroup] = useState("");
-	const [local, setLocal] = useState(""); 
 	const [task, setTask] = useState(""); 
-	const [right, setRight] = useState(""); 
-	const [created_by, setCreated_by] = useState("");
+	const [global_, setGlobal] = useState(""); 
 	const [type, setType] = useState("file"); 
 	const [code, setCode] = useState("// some comment");	
 	const [id, setId] = useState(""); 
@@ -23,9 +21,9 @@ const Roles =(props) => {
 			const formData = new FormData();
 			formData.append('file', task);
 			setTask(formData);
-			router.post("/roles/save", {name, group, local, task,  right, created_by, type, code}, {forceFormData: true,});
+			router.post("/roles/save", {name, group, task, type, code, global_}, {forceFormData: true,});
 		} else {
-			router.post("/roles/edit", {name, group, local, task,  right, created_by, type, code, id}, {forceFormData: true,});
+			router.post("/roles/edit", {name, group, task, type, code, global_, id}, {forceFormData: true,});
 		}
 	};
 	
@@ -36,9 +34,7 @@ const Roles =(props) => {
 			if (el.id == e) {
 				setName(el.name);
 				setGroup(el.group);
-				setLocal(el.local);
-				setRight(el.right);
-				setCreated_by(el.created_by);
+				setGlobal(el.global);
 				setCode(props.codes[el.id]);
 				setId(el.id);
 				const formData = new FormData();
@@ -52,9 +48,7 @@ const Roles =(props) => {
 				setRole("");
 				setName("");
 				setGroup("");
-				setLocal("");
-				setRight("");
-				setCreated_by("");
+				setGlobal("");
 				setId("");
 				setCode("// some comment" );
 	};
@@ -107,17 +101,9 @@ const Roles =(props) => {
 						onChange={(e)=>setGroup(e.target.value)} 
 						type="group" name="group" id="group" placeholder="Group"/>
 					<input 
-						value={local} 
-						onChange={(e)=>setLocal(e.target.value)} 
-						type="local" name="local" id="local" placeholder="Local"/>
-					<input 
-						value={right} 
-						onChange={(e)=>setRight(e.target.value)} 
-						type="right" name="right" id="right" placeholder="Right"/>
-					<input 
-						value={created_by} 
-						onChange={(e)=>setCreated_by(e.target.value)} 
-						type="created_by" name="created_by" id="created_by" placeholder="Created by"/>
+						value={global_} 
+						onChange={(e)=>setGlobal(e.target.value)} 
+						type="global_" name="global_" id="global_" placeholder="Global"/>
 					{(role == "") ?
 						(<button>Добавить</button>)
 					: (<button>Обновить</button>)}
