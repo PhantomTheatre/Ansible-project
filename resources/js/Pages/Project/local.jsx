@@ -68,11 +68,7 @@ const Local = (props) => {
 	
 	const GetUser = (e) =>{
 		setUser(e);
-		props.actors.forEach((el) =>{
-			if (el.id == e) {
-				setUser_Right(el.right);
-			};
-		}); 
+		setUser_Right(props.actors[e]);
 	};
 	const GetHost = (e) =>{
 		setHost(e);
@@ -97,7 +93,7 @@ const Local = (props) => {
 			<h1>Selected user: {props.user}</h1>
 			{(props.local_name != "none")  && (
 				<div>
-					<h1>Admin: {props.admin}</h1>
+					<h1>Admin: {(props.admin)}</h1>
 					<h1>Selected local:  {props.local_name}</h1>
 					<h1>Your right:  {props.right}</h1>
 				</div>
@@ -126,8 +122,8 @@ const Local = (props) => {
 						<select value={user}  onChange={(e)=>GetUser(e.target.value)}>
 							<option selected hidden>User ...</option>
 							<option disabled>User ...</option>
-							{props.actors.map((el) => (
-							<option key={el.id} value={el.id}>{el.login}</option>))}
+							{(Object.keys(props.actors)).map((el) => (
+							<option key={el} value={el}>{el}</option>))}
 						</select>
 						{(user != "") && 
 							<div>
@@ -192,10 +188,12 @@ const Local = (props) => {
 					</div>
 				) : (type == "none") ? (
 					<div>
-						<div><button onClick={Exit}>Exit</button></div>
-						{(props.right != "read") && 
+						{(props.local_name != "none") && 
+							<div><button onClick={Exit}>Exit</button></div>
+						}
+						{(props.right == "write" || props.right == "admin") && 
 							<div>
-								{(props.right != "write") && 
+								{(props.right == "admin") && 
 									<div>
 										<div><button onClick={EditLocalType}>Edit Local</button></div>
 										<div><button onClick={() => { setType("edit_user")}}>Edit Users</button></div>

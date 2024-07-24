@@ -26,7 +26,7 @@ class MainController extends Controller
 		$selected_hosts = array();
 		foreach ($hosts->all() as $host) {
 			if (Cache::store('database')->get('local') == "none") {
-				if ($host->created_by == Cache::store('database')->get('user')) {
+				if ($host->created_by == Cache::store('database')->get('user') and $host->local == "none") {
 					array_push($selected_hosts,$host);
 				}
 			} else {
@@ -43,7 +43,7 @@ class MainController extends Controller
 		$selected_roles = array();
 		foreach ($roles->all() as $role) {
 			if (Cache::store('database')->get('local') == "none") {
-				if ($role->created_by == Cache::store('database')->get('user')) {
+				if ($role->created_by == Cache::store('database')->get('user')  and $role->local == "none") {
 					array_push($selected_roles,$role);
 				}
 			} else {
@@ -70,7 +70,7 @@ class MainController extends Controller
 	}
 	
 	public function hosts() {
-		if (Cache::store('database')->get('right') == "read")  {
+		if (Cache::store('database')->get('local') != "none" and (Cache::store('database')->get('right') == "read" or Cache::store('database')->get('right') == "none")) {
 			return Inertia::render('Project/block', ['print' => 'Недостаточно прав']);
 		} else {
 			$this->SelectedHosts_update();
@@ -103,7 +103,7 @@ class MainController extends Controller
 	}
 	
 	public function roles() {
-		if (Cache::store('database')->get('right') == "read")  {
+		if (Cache::store('database')->get('local') != "none" and (Cache::store('database')->get('right') == "read" or Cache::store('database')->get('right') == "none"))  {
 			return Inertia::render('Project/block', ['print' => 'Недостаточно прав']);
 		} else {
 			$this->SelectedRoles_update();
@@ -153,21 +153,81 @@ class MainController extends Controller
 	}
 	
 	public function play() {
-		$this->SelectedHosts_update();
-		$this->SelectedRoles_update();
-		return Inertia::render('Project/play', ['user' =>Cache::store('database')->get('user'), 'roles' =>Cache::store('database')->get('selected_roles'), 'hosts' => Cache::store('database')->get('selected_hosts'), 'local' =>Cache::store('database')->get('local')]);
+		$hosts = new host();
+		$selected_hosts = array();
+		foreach ($hosts->all() as $host) {
+			if (Cache::store('database')->get('local') != "none") {
+				if ($host->local == Cache::store('database')->get('local')) {
+					if  (Cache::store('database')->get('right') == "none"){
+						if ($host->global == 'true') {
+							array_push($selected_hosts,$host);
+						}
+					} else { array_push($selected_hosts,$host);}
+				} else if ($host->local == 'none' and $host->created_by == Cache::store('database')->get('user')) {
+					array_push($selected_hosts,$host);
+				}
+			} else if ($host->created_by == Cache::store('database')->get('user')){ array_push($selected_hosts,$host);}
+		}
+		$roles = new role();
+		$selected_roles = array();
+		foreach ($roles->all() as $role) {
+			if (Cache::store('database')->get('local') != "none") {
+				if ($role->local == Cache::store('database')->get('local')) {
+					if  (Cache::store('database')->get('right') == "none"){
+						if ($role->global == 'true') {
+							array_push($selected_roles,$role);
+						}
+					} else { array_push($selected_roles,$role);}
+				} else if ($role->local == 'none' and $role->created_by == Cache::store('database')->get('user')) {
+					array_push($selected_roles,$role);
+				}
+			} else if ($role->created_by == Cache::store('database')->get('user')){ array_push($selected_roles,$role);}
+		}
+		return Inertia::render('Project/play', ['user' =>Cache::store('database')->get('user'), 'roles' =>$selected_roles, 'hosts' => $selected_hosts, 'local' =>Cache::store('database')->get('local')]);
 	}
 	public function play_launch(Request $request) {
 		$host = DB::table('hosts')->where('id', $request->host)->first();
 		$role = DB::table('roles')->where('id', $request->role)->first();
-		
-		Storage::disk('local')->put('/ansible/hosts', "{$host->ip} ansible_connection=ssh ansible_ssh_user={$host->login} ansible_ssh_pass={$host->password}");
+		if ($request->typeHost == 'single') {
+			Storage::disk('local')->put('/ansible/hosts', "{$host->ip} ansible_connection=ssh ansible_ssh_user={$host->login} ansible_ssh_pass={$host->password}");
+		}
+		else {
+			$hosts = new host();
+			Storage::disk('local')->put('/ansible/hosts', "");
+			foreach ($hosts->all() as $host) {
+				if (Cache::store('database')->get('local') != "none") {
+					if ($host->local == Cache::store('database')->get('local') and $host->group == $request->host) {
+						Storage::disk('local')->append('/ansible/hosts', "{$host->ip} ansible_connection=ssh ansible_ssh_user={$host->login} ansible_ssh_pass={$host->password}");
+					}
+				} else if ($host->local == "none" and $host->created_by== Cache::store('database')->get('user') and $host->group == $request->host) {
+					Storage::disk('local')->append('/ansible/hosts', "{$host->ip} ansible_connection=ssh ansible_ssh_user={$host->login} ansible_ssh_pass={$host->password}");
+				}
+			}
+		}
+		if ($request->typeRole == 'single') {
 		Storage::disk('local')->put('/ansible/first.yml', 
 "- name: 'First step'
   hosts: all
   roles:
    - {$role->name}"
 		);
+		}
+		else {
+			$roles = new role();
+			Storage::disk('local')->put('/ansible/first.yml', 
+"- name: 'First step'
+  hosts: all
+  roles:");
+			foreach ($roles->all() as $role) {
+				if (Cache::store('database')->get('local') != "none") {
+					if ($role->local == Cache::store('database')->get('local') and $role->group == $request->role) {
+						Storage::disk('local')->append('/ansible/first.yml', "   - {$role->name}");
+					}
+				} else if ($role->local == "none" and $role->created_by== Cache::store('database')->get('user') and $role->group == $request->role) {
+					Storage::disk('local')->append('/ansible/first.yml', "   - {$role->name}");
+				}
+			}
+		}
 		$result = Process::run('cd ../storage/app/ansible && ansible-playbook ./first.yml -i ./hosts ');
 		return $result->output();
 	}
@@ -184,17 +244,20 @@ class MainController extends Controller
 			if (Cache::store('database')->get('right') == "admin" || Cache::store('database')->get('user') == $admin)  {
 				$actors = array();
 				$local = DB::table('locals')->where('name', Cache::store('database')->get('local'))->first();
-				foreach ((DB::table('myusers')->where('local', Cache::store('database')->get('local'))->get()) as $actor) {
-					array_push($actors,$actor);
+				$file = json_decode(json: (File::get( base_path("storage/app/locals/{$local->name}.json"))), associative: true);
+				foreach (array_keys($file) as $actor) {
+					$actors[$actor] = $file[$actor];
 				}
 				return Inertia::render('Project/local', ['local_name' => $local_name,'right'=>"admin", 'admin'=>$admin, 'user' =>Cache::store('database')->get('user'), 'local' =>$local, "actors"=>$actors, 'roles' =>Cache::store('database')->get('selected_roles'), 'hosts' => Cache::store('database')->get('selected_hosts'),] ); 
 			} else if (Cache::store('database')->get('right') == "write") {
 				return Inertia::render('Project/local', ['local_name' => $local_name, 'right'=>"write",'admin'=>$admin, 'user' =>Cache::store('database')->get('user'), 'roles' =>Cache::store('database')->get('selected_roles'), 'hosts' => Cache::store('database')->get('selected_hosts'),] ); 
-			} else {
+			} else if (Cache::store('database')->get('right') == "read"){
 				return Inertia::render('Project/local', ['local_name' => $local_name, 'right'=>"read",'admin'=>$admin, 'user' =>Cache::store('database')->get('user')] ); 
+			} else {
+				return Inertia::render('Project/local', ['local_name' => $local_name, 'right'=>"none",'admin'=>$admin, 'user' =>Cache::store('database')->get('user')] ); 
 			}
-		} else {
-			return Inertia::render('Project/local', ['local_name' => $local_name,  'right'=>"none", 'user' =>Cache::store('database')->get('user')] ); 
+		} else  {
+			return Inertia::render('Project/local', ['local_name' => $local_name,  'right'=>"local", 'user' =>Cache::store('database')->get('user')] ); 
 		}
 	}
 	public function local_exit() {
@@ -230,11 +293,10 @@ class MainController extends Controller
 		);
 		$local->create($data);
 		$file =  array(
-			'admin' => Cache::store('database')->get('user'),
 			Cache::store('database')->get('user') => 'admin',
 		);
 		Storage::disk('local')->put("/locals/{$request->input('name')}.json", json_encode($file));
-		return redirect('/');                // redirect('/local') не обновляет страницу
+		return redirect('/');           // redirect('/local') не обновляет страницу
 	}
 	public function local_edit_local(Request $request) {
 		$local = DB::table('locals')->where('name', Cache::store('database')->get('local'));
@@ -251,14 +313,14 @@ class MainController extends Controller
 	public function local_edit_user(Request $request) {
 		$local = Cache::store('database')->get('local');
 		$file = json_decode(json: (File::get( base_path("storage/app/locals/{$local}.json"))), associative: true);
-		$user = DB::table('myusers')->where('id', $request->user);
+		$user = DB::table('myusers')->where('login', $request->user);
 		if ($user->first()->local == $local) {
 			$user->update(array('right'=>($request->user_right)));
 		}
 		$file[$user->first()->login] = $request->user_right;
 		Storage::disk('local')->put("/locals/{$local}.json", json_encode($file));
 		Cache::store('database')->put('right', $user->first()->right, 1800);
-		return redirect('/');          // redirect('/local') не обновляет страницу
+		return redirect('/');         // redirect('/local') не обновляет страницу
 	}
 	public function local_edit_host(Request $request) {
 		DB::table('hosts')->where('id', $request->host)->update(array('global'=>($request->host_right)));
