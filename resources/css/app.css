@@ -1,3 +1,82 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --colorBrownGray: #6E6658;
+  --colorBackground: #254E58;
+  --colorMenu: #88BDBC;
+  --colorLightGray: #99938a;
+  --colorShadowBackground: #1E3E46;
+  --colorShadowBrownGray: #585246;
+}
+
+.check_button {
+	width: 2.7vh; 
+	height: 2.7vh; 
+	background: white; 
+	border: 2px solid var(--colorShadowBrownGray);
+	margin-left: 1vw;  
+	border-radius: 40%;
+	box-shadow: -0.1vh 0.1vh 0.1vh 0.1vh var(--colorBrownGray);
+	display:flex; 
+	align-items: center;
+	justify-content: center;
+}
+.check_button:hover {
+	box-shadow: 0vh 0vh 0.5vh 0.2vh #cccc00;
+}
+.check_true {
+	background: green; 
+}
+.button_submit {
+	background: green; 
+	padding: 0.5vh 1.5vh;
+	box-shadow: -0.4vh 0.4vh 0.2vh 0.1vh #004c00;
+	border: 2px solid #006600;
+	border-radius: 0.5rem;
+}
+.button_submit:hover {
+	background: #198c19; 
+	border: 2px solid #197519;
+}
+.button_reset {
+	background: var(--colorBackground);
+	padding: 0.5vh 1.5vh;
+	box-shadow: -0.4vh 0.4vh 0.2vh 0.1vh #19363d;
+	border: 2px solid #1d3e46;
+	border-radius: 0.5rem;
+}
+.button_reset:hover {
+	background: #507179; 
+	border: 2px solid var(--colorBackground);
+}
+.button_delete {
+	background: var(--colorBrownGray); 
+	padding: 0.5vh 1.5vh;
+	box-shadow: -0.4vh 0.4vh 0.2vh 0.1vh var(--colorBrownGray);
+	border: 2px solid var(--colorShadowBrownGray);
+	border-radius: 0.5rem;
+}
+.button_delete:hover {
+	background: #7c7568; 
+	border: 2px solid #686358;
+}
+
+
+.text_field {
+	display: block;
+	padding: 0.4vh 0.75vw;
+	font-size: 2vh;
+	border: 2px solid var(--colorShadowBrownGray);
+	border-radius: 0.6rem;
+	box-shadow: -0.1vh 0.2vh 0.1vh 0.1vh var(--colorBrownGray);
+}
+.text_field::placeholder {
+  color: var(--colorBrownGray);
+  opacity: 0.7;
+}
+.text_field:focus {
+  outline: 0;
+  box-shadow: -0.2vh 0.3vh 0.5vh 0.5vh var(--colorBrownGray);
+}

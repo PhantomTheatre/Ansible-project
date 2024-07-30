@@ -208,6 +208,7 @@ class MainController extends Controller
 		Storage::disk('local')->put('/ansible/first.yml', 
 "- name: 'First step'
   hosts: all
+  become: yes
   roles:
    - {$role->name}"
 		);
@@ -217,6 +218,7 @@ class MainController extends Controller
 			Storage::disk('local')->put('/ansible/first.yml', 
 "- name: 'First step'
   hosts: all
+  become: yes
   roles:");
 			foreach ($roles->all() as $role) {
 				if (Cache::store('database')->get('local') != "none") {
@@ -231,8 +233,6 @@ class MainController extends Controller
 		$result = Process::run('cd ../storage/app/ansible && ansible-playbook ./first.yml -i ./hosts ');
 		return $result->output();
 	}
-	
-	
 	
 	public function local() {
 		$this->SelectedHosts_update();
