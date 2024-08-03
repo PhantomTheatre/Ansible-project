@@ -248,16 +248,16 @@ class MainController extends Controller
 				foreach (array_keys($file) as $actor) {
 					$actors[$actor] = $file[$actor];
 				}
-				return Inertia::render('Project/local', ['local_name' => $local_name,'right'=>"admin", 'admin'=>$admin, 'user' =>Cache::store('database')->get('user'), 'local' =>$local, "actors"=>$actors, 'roles' =>Cache::store('database')->get('selected_roles'), 'hosts' => Cache::store('database')->get('selected_hosts'),] ); 
+				return Inertia::render('Project/local_edit', ['local_name' => $local_name,'right'=>"admin", 'admin'=>$admin, 'user' =>Cache::store('database')->get('user'), 'local' =>$local, "actors"=>$actors, 'roles' =>Cache::store('database')->get('selected_roles'), 'hosts' => Cache::store('database')->get('selected_hosts'),] ); 
 			} else if (Cache::store('database')->get('right') == "write") {
-				return Inertia::render('Project/local', ['local_name' => $local_name, 'right'=>"write",'admin'=>$admin, 'user' =>Cache::store('database')->get('user'), 'roles' =>Cache::store('database')->get('selected_roles'), 'hosts' => Cache::store('database')->get('selected_hosts'),] ); 
+				return Inertia::render('Project/local_edit', ['local_name' => $local_name, 'right'=>"write",'admin'=>$admin, 'user' =>Cache::store('database')->get('user'), 'roles' =>Cache::store('database')->get('selected_roles'), 'hosts' => Cache::store('database')->get('selected_hosts'),] ); 
 			} else if (Cache::store('database')->get('right') == "read"){
-				return Inertia::render('Project/local', ['local_name' => $local_name, 'right'=>"read",'admin'=>$admin, 'user' =>Cache::store('database')->get('user')] ); 
+				return Inertia::render('Project/local_edit', ['local_name' => $local_name, 'right'=>"read",'admin'=>$admin, 'user' =>Cache::store('database')->get('user')] ); 
 			} else {
-				return Inertia::render('Project/local', ['local_name' => $local_name, 'right'=>"none",'admin'=>$admin, 'user' =>Cache::store('database')->get('user')] ); 
+				return Inertia::render('Project/local_edit', ['local_name' => $local_name, 'right'=>"none",'admin'=>$admin, 'user' =>Cache::store('database')->get('user')] ); 
 			}
 		} else  {
-			return Inertia::render('Project/local', ['local_name' => $local_name,  'right'=>"local", 'user' =>Cache::store('database')->get('user')] ); 
+			return Inertia::render('Project/local_create', ['local_name' => $local_name,  'right'=>"local", 'user' =>Cache::store('database')->get('user')] ); 
 		}
 	}
 	public function local_exit() {
@@ -334,8 +334,12 @@ class MainController extends Controller
 	
 	
 	public function user() {
-		$user = DB::table('myusers')->where('login', Cache::store('database')->get('user'))->first();
-		return Inertia::render('Project/user', ['user' =>Cache::store('database')->get('user'), 'local' =>Cache::store('database')->get('local'), 'db_user'=>$user] ); 
+		if (Cache::store('database')->get('user') == "none") {
+			return Inertia::render('Project/user_login', ['user' =>Cache::store('database')->get('user'), 'local' =>Cache::store('database')->get('local')] ); 
+		} else { 
+			$user = DB::table('myusers')->where('login', Cache::store('database')->get('user'))->first();
+			return Inertia::render('Project/user_edit', ['user' =>Cache::store('database')->get('user'), 'local' =>Cache::store('database')->get('local'), 'db_user'=>$user] ); 
+		}
 	}
 	public function user_exit() {
 		cookie::queue(Cookie::forever('user', "none"));
@@ -381,7 +385,7 @@ class MainController extends Controller
 					DB::table('roles')->where('id', $role->id)->update(array('created_by'=>$request->login));
 				}
 				foreach (DB::table('locals')->where('admin', Cache::store('database')->get('user')) ->get() as $local) {
-					DB::table('locals')->where('id', $local->id)->update(array('created_by'=>$request->login));
+					DB::table('locals')->where('id', $local->id)->update(array('admin'=>$request->login));
 				}
 			}
 			

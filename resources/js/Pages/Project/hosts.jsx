@@ -168,7 +168,9 @@ export default function MainComponent(props) {
 													<Button_check setValue={setGroup_on} value={group_on} label={"Add host to some group"}/>
 												</div>
 										</div>
-										<Button_check setValue={setGlobal} value={global_} label={"Add global tag to this host"}/>
+										<div style={{marginTop: "3vh"}}>
+											<Button_check setValue={setGlobal} value={global_} label={"Add global tag to this host"}/>
+										</div>
 									</div>
 									<div>
 										<button className={"button_submit"} style= {{marginTop: "3vh", marginLeft:"22vw"}} onClick={()=>{saveData()}}>Save host</button>
@@ -177,9 +179,9 @@ export default function MainComponent(props) {
 							</div>
 							<div id = {actions[1]} style = {{visibility: "collapse", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "right ", top:"-60vh", opacity: "0", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
 								<div style= {{marginLeft: "2vw", marginTop: "3vh", position: "absolute"}} >
-									<div style= {{display: "flex", flexDirection: "inline"}}>
+									<div style= {{display: "flex", flexDirection: "inline", alignItems: "center"}}>
 										<p style= {{fontSize: "3vh", marginRight: "1vw"}}>Edit existing host</p>
-											<select value={host}  onChange={(e)=>GetHost(e.target.value)}>
+											<select value={host}  className={"select"} onChange={(e)=>GetHost(e.target.value)}>
 												<option hidden>Host ...</option>
 												<option disabled>Host ...</option>
 												{props.hosts.map((el) => (

@@ -46,7 +46,7 @@ export default function Theme(props) {
 					{local != "none" &&
 						<h1>Selected local: {local}</h1>}
 				</div>
-				<div style = {{fontSize: "2vw", width: "9vw", margin: "0.8vh", marginRight: "1.6vw", display:"flex", alignItems: "center", margin: "auto", justifyContent: "center"}}>
+				<div style = {{fontSize: "2vw", width: "9vw", marginLeft: "1vw", display:"flex", alignItems: "center", justifyContent: "center"}}>
 					<h1>Awz site</h1>
 				</div>
 			</div>

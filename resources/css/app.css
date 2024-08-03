@@ -59,10 +59,26 @@
 	border-radius: 0.5rem;
 }
 .button_delete:hover {
-	background: #7c7568; 
-	border: 2px solid #686358;
+	background: #b20000; 
+	border: 2px solid #7c0000;
 }
-
+.select {
+	outline: 0;
+	font-size: 2vh;
+	border: 2px solid var(--colorShadowBrownGray);
+	box-shadow: -0.1vh 0.2vh 0.1vh 0.1vh var(--colorBrownGray);
+	border-radius: 0.5rem;
+	min-width: 10vw;
+}
+.select:focus {
+	outline: 0;
+	border: 2px solid var(--colorShadowBrownGray);
+	border-radius: 0.5rem;
+	box-shadow: -0.1vh 0.2vh 0.1vh 0.1vh var(--colorBrownGray);
+}
+.select:hover {
+	cursor: pointer;
+}
 
 .text_field {
 	display: block;
@@ -79,4 +95,16 @@
 .text_field:focus {
   outline: 0;
   box-shadow: -0.2vh 0.3vh 0.5vh 0.5vh var(--colorBrownGray);
+}
+
+.lazer > div{
+	left: 0.5vw;
+	transition: all 0.5s;
+}
+.lazer:hover > div{
+	left: -1vw;
+	transition: all 0.5s;
+}
+.lazer:hover > div > div:hover{
+	cursor: pointer;
 }
