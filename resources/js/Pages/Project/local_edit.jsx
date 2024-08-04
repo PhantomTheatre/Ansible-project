@@ -16,15 +16,25 @@ export default function MainComponent(props) {
 	
 	const [Filter, setFilter]=  useState({"admin": true, "write": true,  "read": true,  "global": true,  "banned": false});
 	
-	const [actors, setActors]  = useState(props.actors);
-	const [members, setMembers] = useState(props.actors);
+	const [actors, setActors]  = useState(Object.entries(props.actors));
+	const [members, setMembers] = useState(Object.entries(props.actors));
+	
+	const ChangeValue = (key, value) => {
+		actors.map((el) => {  
+			if (el[0] == key) { 
+				el[1] = value
+			}  
+		});
+	}
 	
 	const ApplyFilter = () => {
-		let new_members = {};
-		Object.keys(actors).map((el) => {
-			if (Filter[actors[el]]) {new_members[el]=actors[el]}
-			});
+		let new_members = [];
+		actors.map((el) => {
+			if (Filter[el[1]]) {new_members.push([...el]) }
+		});
+		console.log(new_members);
 		setMembers(new_members);
+		
 	}
 	
 	
@@ -46,17 +56,18 @@ export default function MainComponent(props) {
 	self_object.rotation=5;
 	
 	const Reset = () => {
-		let new_actors = {};
+		console.log(props.actors);
+		let new_actors = [];
 		Object.entries(props.actors).forEach((el) => {
-			new_actors[el[0]]=el[1]
+			new_actors.push([...el]);
 			if (document.getElementById(el[0]) != null) {document.getElementById(el[0]).value=props.actors[el[0]]}
 		});
 		setActors(new_actors);
 		
-		let new_members = {};
-		Object.keys(new_actors).map((el) => {
-			if (Filter[new_actors[el]]) {new_members[el]=new_actors[el]}
-			});
+		let new_members = [];
+		new_actors.map((el) => {
+			if (Filter[el[1]]) {new_members.push([...el]) }
+		});
 		setMembers(new_members);
 		
 	}
@@ -90,7 +101,7 @@ export default function MainComponent(props) {
 		if (type != selected_type) {
 			Change();
 			//console.log(document.getElementById(selected_type).style.transform);
-			//console.log(members);
+			console.log( members);
 		}
 	}, [type]);
 	useEffect(() => {
@@ -134,7 +145,7 @@ export default function MainComponent(props) {
 														onChange={(e)=>setName(e.target.value)} 
 														type="name" name="name" id="name" placeholder="Name"/>
 											</div>
-											<div>
+											<div> 
 													<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"2vh"}}>Password:</p>
 													<input 
 														className={"text_field"}
@@ -162,19 +173,19 @@ export default function MainComponent(props) {
 										</div>
 										<div style={{display: "inline-flex", background:"transparent",  width: "100%", height: "45vh",padding: "2vh 0vw", border: "2px solid var(--colorShadowBrownGray)", boxShadow: "inset 0vh 0vh 0.5vh 0.4vh var(--colorBrownGray)"}}>
 											<div  style={{width: "95%", height: "47vh",}}>
-													{(Object.keys(members)).map((el) => (
+													{members.map((el) => (
 													<div style={{display: "grid", gridTemplateColumns: '2vw 28vw 5vw 3vw', border: "2px solid var(--colorShadowBrownGray)", background: "#8b8479", margin: "0.5vh 1.5vw", padding: "0.8vh", width: "100%", fontSize: "2.5vh", alignItems: "center"}} key={el} value={el}>
 														<div>
-															{((Object.keys(members)).indexOf(el) +1) + "."}
+															{(members.indexOf(el) +1) + "."}
 														</div>
 														<div>
-															{el}
+															{el[0]}
 														</div>
 														<div>
 															Right:
 														</div>
 														<div>
-															<select id= {el} defaultValue={members[el]} className={"select"} onChange={(e) => {actors[el] = e.target.value; ApplyFilter()}}>
+															<select id= {el[0]} defaultValue={el[1]} className={"select"} onChange={(e) => {ChangeValue(el[0], e.target.value); ApplyFilter()}}>
 																<option hidden>Right</option>
 																<option value={"admin"}>Admin</option>
 																<option value={"write"}>Writer</option>
@@ -185,14 +196,14 @@ export default function MainComponent(props) {
 														</div>
 													</div>))
 													}
-													{Object.keys(members).length == 0 &&
+													{members.length == 0 &&
 														<div style={{fontSize: "2.5vh", display: "flex", justifyContent: "center", alignItems: "center", background:"#8b8479",  width: "96%",  margin: "1vh 2.3vw", height: "15vh", border: "2px solid var(--colorShadowBrownGray)", boxShadow: " 0vh 0vh 0.5vh 0.4vh var(--colorBrownGray)"}}>
 															There are no members available with the selected filter
 														</div>
 													}
 													
 											</div>
-											{Object.keys(members).length != 0 &&
+											{members.length != 0 &&
 												<div onMouseMove= {() => {MouseMove()}} onMouseLeave=  {() => {setMouse("up")}} className={"lazer" } style={{height: "40vh", width: "8%",  display: "flex", flexDirection: "row-reverse", overflow: "hidden", marginLeft: "1.1vw", }}>
 													<div style={{border: "2px solid var(--colorShadowBrownGray)", background: "#8b8479", height: "40vh", width: "40%",position: "relative", }} >
 														<div 

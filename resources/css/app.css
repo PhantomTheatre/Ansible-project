@@ -108,3 +108,45 @@
 .lazer:hover > div > div:hover{
 	cursor: pointer;
 }
+
+.item {
+	border: 2px solid var(--colorShadowBrownGray);
+	background: #8b8479;
+}
+.item:hover  {
+	cursor: pointer;
+	background: #a29c93;
+}
+.selectedItem {
+	background: green;
+	transition: all 0.2s;
+}
+.selectedItem:hover {
+	background: green;
+	transition: all 0.2s;
+}
+
+.toggle {
+	border-radius: 0.6rem;
+	background: white;
+	transition: all 0.1s;
+	font-size: 2.1vh;
+	user-select: none;
+	cursor: pointer;
+	box-shadow: -0.2vh 0.2vh 0.1vh 0.1vh var(--colorBrownGray);
+}
+.toggle_select {
+	border-radius: 1rem;
+	background: green;
+	transition: all 0.1s;
+	font-size: 1.9vh;
+	cursor: auto;
+}
+.toggle:hover {
+	border-radius: 0.8rem;
+	box-shadow: -0.2vh 0.2vh 0.1vh 0.1vh gold;
+}
+.toggle_select:hover {
+	border-radius: 1rem;
+	box-shadow: -0.2vh 0.2vh 0.1vh 0.1vh var(--colorBrownGray);
+}
