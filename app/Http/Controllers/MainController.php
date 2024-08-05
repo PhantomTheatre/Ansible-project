@@ -153,6 +153,7 @@ class MainController extends Controller
 	}
 	
 	public function play() {
+		$user = Cache::store('database')->get('user');
 		$hosts = new host();
 		$selected_hosts = array();
 		foreach ($hosts->all() as $host) {
@@ -163,10 +164,10 @@ class MainController extends Controller
 							array_push($selected_hosts,$host);
 						}
 					} else { array_push($selected_hosts,$host);}
-				} else if ($host->local == 'none' and $host->created_by == Cache::store('database')->get('user')) {
+				} else if ($host->local == 'none' and $host->created_by == $user) {
 					array_push($selected_hosts,$host);
 				}
-			} else if ($host->created_by == Cache::store('database')->get('user')){ array_push($selected_hosts,$host);}
+			} else if ($host->created_by == $user){ array_push($selected_hosts,$host);}
 		}
 		$roles = new role();
 		$selected_roles = array();
@@ -178,59 +179,40 @@ class MainController extends Controller
 							array_push($selected_roles,$role);
 						}
 					} else { array_push($selected_roles,$role);}
-				} else if ($role->local == 'none' and $role->created_by == Cache::store('database')->get('user')) {
+				} else if ($role->local == 'none' and $role->created_by == $user) {
 					array_push($selected_roles,$role);
 				}
-			} else if ($role->created_by == Cache::store('database')->get('user')){ array_push($selected_roles,$role);}
+			} else if ($role->created_by == $user){ array_push($selected_roles,$role);}
 		}
-		return Inertia::render('Project/play', ['user' =>Cache::store('database')->get('user'), 'roles' =>$selected_roles, 'hosts' => $selected_hosts, 'local' =>Cache::store('database')->get('local')]);
+		
+		$logs = [];
+		foreach (Storage::files("/users/{$user}/logs") as $log) {
+				array_push($logs, [Storage::disk('local')->get($log), $log]);
+		}
+		return Inertia::render('Project/play', ['logs'=>$logs, 'user' =>$user, 'roles' =>$selected_roles, 'hosts' => $selected_hosts, 'local' =>Cache::store('database')->get('local')]);
 	}
+	
 	public function play_launch(Request $request) {
-		$host = DB::table('hosts')->where('id', $request->host)->first();
-		$role = DB::table('roles')->where('id', $request->role)->first();
-		if ($request->typeHost == 'single') {
-			Storage::disk('local')->put('/ansible/hosts', "{$host->ip} ansible_connection=ssh ansible_ssh_user={$host->login} ansible_ssh_pass={$host->password}");
+		Storage::disk('local')->put('/ansible/hosts', "");
+		foreach ($request->final_selectedHosts as $el) {
+			$host = DB::table('hosts')->where('id', $el)->first();
+			Storage::disk('local')->append('/ansible/hosts', "{$host->ip} ansible_connection=ssh ansible_ssh_user={$host->login} ansible_ssh_pass={$host->password}");
 		}
-		else {
-			$hosts = new host();
-			Storage::disk('local')->put('/ansible/hosts', "");
-			foreach ($hosts->all() as $host) {
-				if (Cache::store('database')->get('local') != "none") {
-					if ($host->local == Cache::store('database')->get('local') and $host->group == $request->host) {
-						Storage::disk('local')->append('/ansible/hosts', "{$host->ip} ansible_connection=ssh ansible_ssh_user={$host->login} ansible_ssh_pass={$host->password}");
-					}
-				} else if ($host->local == "none" and $host->created_by== Cache::store('database')->get('user') and $host->group == $request->host) {
-					Storage::disk('local')->append('/ansible/hosts', "{$host->ip} ansible_connection=ssh ansible_ssh_user={$host->login} ansible_ssh_pass={$host->password}");
-				}
-			}
-		}
-		if ($request->typeRole == 'single') {
 		Storage::disk('local')->put('/ansible/first.yml', 
 "- name: 'First step'
   hosts: all
   become: yes
-  roles:
-   - {$role->name}"
-		);
-		}
-		else {
-			$roles = new role();
-			Storage::disk('local')->put('/ansible/first.yml', 
-"- name: 'First step'
-  hosts: all
-  become: yes
   roles:");
-			foreach ($roles->all() as $role) {
-				if (Cache::store('database')->get('local') != "none") {
-					if ($role->local == Cache::store('database')->get('local') and $role->group == $request->role) {
-						Storage::disk('local')->append('/ansible/first.yml', "   - {$role->name}");
-					}
-				} else if ($role->local == "none" and $role->created_by== Cache::store('database')->get('user') and $role->group == $request->role) {
-					Storage::disk('local')->append('/ansible/first.yml', "   - {$role->name}");
-				}
-			}
+		foreach ($request->final_selectedRoles as $el) {
+			$role = DB::table('roles')->where('id', $el)->first();
+			Storage::disk('local')->append('/ansible/first.yml', "   - {$role->name}");
 		}
 		$result = Process::run('cd ../storage/app/ansible && ansible-playbook ./first.yml -i ./hosts ');
+		
+		$user = Cache::store('database')->get('user');
+		date_default_timezone_set('UTC');
+		$date = date('j-m-Y-h-i-s');
+		Storage::disk('local')->put("/users/{$user}/logs/{$date}.txt", "{$result->output()}");
 		return $result->output();
 	}
 	
@@ -374,6 +356,8 @@ class MainController extends Controller
 			'local' => "none",
 		);
 		$user->create($data);
+		Storage::disk('local')->makeDirectory("/users/{$request->login}/");
+		Storage::disk('local')->makeDirectory("/users/{$request->login}/logs");
 		return redirect('/');   // redirect('/local') не обновляет страницу
 	}
 	public function user_edit(Request $request) {

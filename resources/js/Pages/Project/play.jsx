@@ -4,6 +4,7 @@ import Page_theme from './Page_theme.jsx';
 import '/resources/css/app.css';
 import Global from './Global';
 import Button_check from './Button_check';
+import Editor from '@monaco-editor/react';
 
 export default function MainComponent(props) {
 	const { auth } = usePage().props;
@@ -19,11 +20,18 @@ export default function MainComponent(props) {
 	const [Roles, setRoles] = useState(Object.entries(props.roles));
 	const [RolesFilter, setRolesFilter] = useState(Object.entries(props.roles));
 	
+	const [Logs, setLogs] = useState(Object.entries(props.logs));
+	const [LogsFilter, setLogsFilter] = useState(Object.entries(props.logs));
+	const [code, setCode] = useState("a");
+	const [logName, setLogName] = useState("a");
+	
 	const [search_host, setSearch_host] = useState("");
 	const [single_on_host, setSingle_on_host] = useState(true);
 	
 	const [search_role, setSearch_role] = useState("");
 	const [single_on_role, setSingle_on_role] = useState(true);
+	
+	const [log_type, setLog_type] = useState(false);
 	
 	const [mouse, setMouse] = useState("up");
 	const MouseMove = () => {
@@ -78,7 +86,6 @@ export default function MainComponent(props) {
 			else {delete selectedHosts[index];}
 			eve.currentTarget.classList.toggle("selectedItem");
 		}
-		console.log(selectedHosts)
 	}
 	const RolesChange = (eve, el) => {
 		if (single_on_role == true) {
@@ -145,17 +152,21 @@ export default function MainComponent(props) {
 		
 	}
 	
+	const LogChange = (el) => {
+		setLog_type(true);
+		setCode(el[1][0]);
+		setLogName(el[1][1].slice(el[1][1].lastIndexOf('/')+1, -13) + " / " + el[1][1].slice(-12, -4));
+	}
+	
 	
 	
 	useEffect(() => {
 		if (type != selected_type) {
 			Change();
-			console.log(Hosts);
 		}
 	}, [type]);
 	
 	useEffect(() => {
-		console.log(selectedHosts);
 		if (search_host == "" && single_on_host==true) { setHostsFilter(Object.entries(props.hosts))}
 		else if (search_host == "" && single_on_host==false) {setHostsFilter(Hosts)}
 		else {
@@ -172,7 +183,6 @@ export default function MainComponent(props) {
 		}
 	}, [search_host]);
 	useEffect(() => {
-		console.log(selectedRoles);
 		if (search_role == "" && single_on_role==true) { setRolesFilter(Object.entries(props.roles))}
 		else if (search_role == "" && single_on_role==false) {setHostsFilter(Roles)}
 		else {
@@ -229,6 +239,25 @@ export default function MainComponent(props) {
 		}
 	}, [RolesFilter]);
 	
+	const Start = () => {
+		
+		let final_selectedHosts = [];
+			Object.values(props.hosts).forEach((el) => {
+				if ((single_on_host== true && selectedHosts.indexOf(el['name']) != -1) || (single_on_host== false && selectedHosts.indexOf(el['group']) != -1)) {
+					final_selectedHosts.push(el['id'])
+				}
+			})
+		let final_selectedRoles = [];
+		Object.values(props.roles).forEach((el) => {
+			if ((single_on_role== true && selectedRoles.indexOf(el['name']) != -1) || (single_on_role== false && selectedRoles.indexOf(el['group']) != -1)) {
+				final_selectedRoles.push(el['id'])
+			}
+		})
+			
+		router.post("/play/launch", {final_selectedRoles, final_selectedHosts, single_on_role, single_on_host});
+	};
+	
+	
 	
 	return (
 		<Global.Provider value = {{user : props.user, local : props.local}}>
@@ -259,13 +288,70 @@ export default function MainComponent(props) {
 											
 											<div>
 												<div style = {{borderRadius: "3% 25% 3% 3%", boxShadow: "-0.1vw 0vh 10px 5px var(--colorShadowBrownGray)",   background: "var(--colorLightGray)", height: "40vh"}}>
-													<p style= {{fontSize: "3vh", display: "flex", alignItems: "center", width:"95%", marginLeft: "2vw", paddingTop: "1.5vh"}}>Hosts</p>
+													<p style= {{fontSize: "3vh", display: "flex", alignItems: "center", width:"95%", marginLeft: "2vw", paddingTop: "1.5vh"}}>Selected Hosts</p>
+													<div style={{borderRadius: "0 5px 0 0", background: "black", width: "24vw", height: "3px", marginLeft: "1.9vw", boxShadow: "0.1vw 0.2vh 0px 0.5px var(--colorShadowBrownGray)",}}></div>
+															
+															{ selectedHosts.filter(function () { return true }).length != 0 ? (
+																<div style={{background: "transparent", width: "21.5vw", height: "28.5vh", margin: "2.1vh 2vw", boxShadow: "inset 0vw 0.2vh 10px 5px var(--colorShadowBrownGray)", display: "inline-grid", gridTemplateColumns: "12.5vw 9vw"}}>
+																	<div style= {{fontSize: "2.3vh", marginLeft: "1.5vw", display: "flex", alignItems: "center", justifyContent: "center", padding: "3vh 0vw", }}>
+																		<div style={{zIndex: "2", overflow: "scroll", padding: "0.4vh", borderRadius: "5px 5px 5px 5px", display: "flex", flexDirection: "column", alignItems: "center", background: "transparent", width: "100%", height: "23vh", boxShadow: "-0.2vw 0.2vh 3px 0px var(--colorShadowBrownGray)",   border:"solid 4px var(--colorShadowBrownGray)",}}>
+																			{selectedHosts.map((el) => (
+																			<div style={{display: "flex", flexDirection: "column", alignItems: "center", }}>
+																				<div>{el}</div>
+																				<div style={{background: "black", width: "10vw", height: "2px"}}></div>
+																			</div>
+																			))}
+																		</div>
+																	</div>
+																	<div style= {{fontSize: "2.5vh", display: "flex", alignItems: "center", justifyContent: "center", paddingBottom: "10vh"}}>
+																		<div style={{borderRadius: "10px 2px 2px 2px", background: "transparent",  boxShadow: "-0.2vw 0.2vh 3px 0px var(--colorShadowBrownGray)",   border:"solid 4px var(--colorShadowBrownGray)", padding: "1vh 1vw", }}>
+																			{single_on_host ? <p>Singe</p> : <p>Group</p>}
+																		</div>
+																	</div>
+																</div>
+															) : (
+																<div style={{background: "transparent", width: "21.5vw", height: "28.5vh", margin: "2.1vh 2vw", boxShadow: "inset 0vw 0.2vh 10px 5px var(--colorShadowBrownGray)", display: "flex", alignItems: "center", justifyContent: "center", paddingBottom: "10vh"}}>
+																	<div style={{fontSize: "2vh", display: "flex", justifyContent: "center", alignItems: "center", background:"#8b8479",  width: "96%",  margin: "1vh 2.3vw", height: "12vh", border: "2px solid var(--colorShadowBrownGray)", boxShadow: " 0vh 0vh 0.5vh 0.4vh var(--colorBrownGray)"}}>
+																		Go to the /Hosts/ tab and select
+																	</div>
+																</div>
+															)}
+														
+														
 												</div>
 											</div>
 											
 											<div>
 												<div style = {{marginLeft: "2vh", borderRadius: "25% 3% 3% 3%", boxShadow: "-0.1vw 0vh 10px 5px var(--colorShadowBrownGray)",   background: "var(--colorLightGray)", height: "40vh"}}>
-													<p style= {{fontSize: "3vh", display: "flex", flexDirection: "row-reverse", paddingRight: "2.5vw", alignItems: "center", width:"95%", marginLeft: "2vw", paddingTop: "1.5vh"}}>Roles</p>
+													<p style= {{fontSize: "3vh", display: "flex", flexDirection: "row-reverse", paddingRight: "2.5vw", alignItems: "center", width:"95%", marginLeft: "2vw", paddingTop: "1.5vh"}}>Selected Roles</p>
+													<div style={{borderRadius: "5px 0 0 0", background: "black", width: "24vw", height: "3px", marginLeft: "0.4vw", boxShadow: "-0.1vw 0.2vh 0px 0.5px var(--colorShadowBrownGray)",}}></div>
+													
+														
+														{ selectedRoles.filter(function () { return true }).length != 0 ? (
+															<div style={{background: "transparent", width: "21.5vw", height: "28.5vh", margin: "2.1vh 2vw", boxShadow: "inset 0vw 0.2vh 10px 5px var(--colorShadowBrownGray)", display: "inline-grid", gridTemplateColumns: "8.5vw 11.5vw"}}>
+																<div style= {{fontSize: "2.5vh", display: "flex", alignItems: "center", justifyContent: "center", paddingBottom: "10vh"}}>
+																	<div style={{borderRadius: "2px 10px 2px 2px", background: "transparent",  boxShadow: "-0.2vw 0.2vh 3px 0px var(--colorShadowBrownGray)",   border:"solid 4px var(--colorShadowBrownGray)", padding: "1vh 1vw", }}>{single_on_role ? <p>Singe</p> : <p>Group</p>}</div>
+																</div>
+																<div style= {{fontSize: "2.3vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "3vh 0vw", }}>
+																	<div style={{zIndex: "2", overflow: "scroll", padding: "0.4vh", borderRadius: "5px 5px 5px 5px", display: "flex", flexDirection: "column", alignItems: "center", background: "transparent", width: "100%", height: "23vh", boxShadow: "-0.2vw 0.2vh 3px 0px var(--colorShadowBrownGray)",   border:"solid 4px var(--colorShadowBrownGray)",}}>
+																		{selectedRoles.map((el) => (
+																		<div style={{display: "flex", flexDirection: "column", alignItems: "center", }}>
+																			<div>{el}</div>
+																			<div style={{background: "black", width: "10vw", height: "2px"}}></div>
+																		</div>
+																		))}
+																	</div>
+																</div>
+															</div>
+														) : (
+															<div style={{background: "transparent", width: "21.5vw", height: "28.5vh", margin: "2.1vh 2vw", boxShadow: "inset 0vw 0.2vh 10px 5px var(--colorShadowBrownGray)", display: "flex", alignItems: "center", justifyContent: "center", paddingBottom: "10vh"}}>
+																<div style={{fontSize: "2vh", display: "flex", justifyContent: "center", alignItems: "center", background:"#8b8479",  width: "96%",  margin: "1vh 2.3vw", height: "12vh", border: "2px solid var(--colorShadowBrownGray)", boxShadow: " 0vh 0vh 0.5vh 0.4vh var(--colorBrownGray)"}}>
+																	Go to the /Roles/ tab and select
+																</div>
+															</div>
+														)}
+														
+														
 												</div>
 											</div>
 											
@@ -277,11 +363,11 @@ export default function MainComponent(props) {
 												</div>
 											</div>
 											<div style = {{ overflow: "hidden", display: "flex", height: "20vh", width: "20vw", padding: "2vh 2vw", marginLeft: "-0.5vw"}}>
-												<div style = {{borderRadius: "100%", boxShadow: "inset 0vw 0.2vh 10px 5px var(--colorShadowBrownGray)", right: "-9vw", marginTop: "3vh", background: "var(--colorLightGray)", height: "30vh", width: "18vw", position: "relative"}}>
+												<div style = {{borderRadius: "100%", boxShadow: "inset 0vw 0.2vh 8px 2px var(--colorShadowBrownGray)", right: "-9vw", marginTop: "3vh", background: "var(--colorLightGray)", height: "30vh", width: "18vw", position: "relative"}}>
 												</div>
 											</div>
 											<div style = {{ overflow: "hidden", display: "flex", height: "20vh", width: "20vw", padding: "2vh 2vw", marginLeft: "1.2vw"}}>
-												<div style = {{borderRadius: "100%", boxShadow: "inset 0vw 0.2vh 10px 5px var(--colorShadowBrownGray)", right: "9vw", marginTop: "3vh", background: "var(--colorLightGray)", height: "30vh", width: "18vw", position: "relative"}}>
+												<div style = {{borderRadius: "100%", boxShadow: "inset 0vw 0.2vh 8px 2px var(--colorShadowBrownGray)", right: "9vw", marginTop: "3vh", background: "var(--colorLightGray)", height: "30vh", width: "18vw", position: "relative"}}>
 												</div>
 											</div>
 										</div>
@@ -293,9 +379,15 @@ export default function MainComponent(props) {
 											<div style = {{borderRadius: "100%", right: "-9vw", marginTop: "-15vh", border:"solid 4px var(--colorShadowBrownGray)", height: "28vh", width: "100vw", position: "relative"}}>
 											</div>
 										</div>
-										<div style = {{fontSize: "2.7vh", borderRadius: "14px 14px 29px 29px", boxShadow: "0vw 0.2vh 10px 5px var(--colorShadowBrownGray)", background: "red", position: "absolute", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "7vh", width: "10vw",marginLeft: "23.9vw", marginTop: "-10vh"}}>
-											<p >Start</p>
-										</div>
+										{ (selectedRoles.filter(function () { return true }).length != 0 &&  selectedHosts.filter(function () { return true }).length != 0)  ? (
+											<div className={"button_submit"} onClick={() => Start()} style = {{cursor: "pointer", userSelect: "none", fontSize: "2.7vh", borderRadius: "14px 14px 29px 29px",  boxShadow: "0vw 0.5vh 2px 1px #004c00",  position: "absolute", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "7vh", width: "10vw",marginLeft: "23.9vw", marginTop: "-10vh"}}>
+												<p >Start</p>
+											</div>
+										) : (
+											<div style = {{userSelect: "none", border: "2px solid var(--colorShadowBrownGray)", boxShadow: " 0vh 0.4vh 0.1vh 0.1vh var(--colorBrownGray)", background:"#8b8479", fontSize: "2.7vh", borderRadius: "14px 14px 29px 29px",  position: "absolute", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "7vh", width: "10vw",marginLeft: "23.9vw", marginTop: "-10vh"}}>
+												<p >Start</p>
+											</div>
+										)}
 										
 							
 							</div>
@@ -385,7 +477,7 @@ export default function MainComponent(props) {
 								
 								<div style= {{paddingLeft: "2vw", paddingTop: "3vh", position: "absolute", width: "96.5%"}} >
 											<div style={{display:"inline-flex", marginBottom: "0.8vh"}}>
-												<p style= {{fontSize: "3vh"}}>Your available hosts:</p>
+												<p style= {{fontSize: "3vh"}}>Your available roles:</p>
 												<div style={{display:"inline-flex", flexDirection: "row-reverse", width: "38vw", alignItems: "center"}}>
 														<input 
 															className={"text_field"}
@@ -464,12 +556,77 @@ export default function MainComponent(props) {
 							<div id = {actions[3]} style = {{visibility: "collapse", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "right ", top:"-180vh", opacity: "0", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
 								
 								
-								<div  style = {{ fontSize:"5vh",marginTop:"2vh", marginLeft:"3vh", position:"absolute", width:"100%"}}>
-								</div>
+								
+								{ !log_type ? (
+									<div style= {{paddingLeft: "2vw", paddingTop: "3vh", position: "absolute", width: "96.5%"}} >
+											<div style={{display:"inline-flex", marginBottom: "0.8vh"}}>
+												<p style= {{fontSize: "3vh"}}>Your logs:</p>
+											</div>
+											<div style={{display: "inline-flex", background:"transparent",  width: "100%", height: "45vh",padding: "2vh 0vw", border: "2px solid var(--colorShadowBrownGray)", boxShadow: "inset 0vh 0vh 0.5vh 0.4vh var(--colorBrownGray)"}}>
+												<div  id = {"LogsMenu"} style={{width: "95%", height: "47vh",}}>	
+													{LogsFilter.map((el) => (
+														<div onClick={() => {LogChange(el)}} className={"item"} style={{fontSize: "1.8vh", display: "grid", gridTemplateColumns: '2vw 6vw 6vw 1.5vw 9vw', margin: "0.5vh 1.5vw", padding: "0.8vh", width: "100%", alignItems: "center"}} key={el} value={el}>
+															<div>{el[0] + "."}</div>
+															<div>Log from </div>
+															<div>{el[1][1].slice(el[1][1].lastIndexOf('/')+1, -13) }</div>
+															<div>/</div>
+															<div>{el[1][1].slice(-12, -4)}</div>
+															
+														</div>
+														))}
+													{LogsFilter.length == 0 &&
+														<div style={{fontSize: "2.5vh", display: "flex", justifyContent: "center", alignItems: "center", background:"#8b8479",  width: "96%",  margin: "1vh 2.3vw", height: "15vh", border: "2px solid var(--colorShadowBrownGray)", boxShadow: " 0vh 0vh 0.5vh 0.4vh var(--colorBrownGray)"}}>
+															There are no logs
+														</div>
+													}
+														
+												</div>
+												{LogsFilter.length != 0 &&
+													<div onMouseMove= {() => {MouseMove()}} onMouseLeave=  {() => {setMouse("up")}} className={"lazer" } style={{height: "40vh", width: "8%",  display: "flex", flexDirection: "row-reverse", overflow: "hidden", marginLeft: "1.1vw", }}>
+														<div style={{border: "2px solid var(--colorShadowBrownGray)", background: "#8b8479", height: "40vh", width: "40%",position: "relative", }} >
+															<div 
+																onMouseDown= {() => {setMouse("down")}}
+																onMouseUp= {() => {setMouse("up")}}
+																id={"lazer_child"}
+																style={{position: "absolute", top:"0px", boxShadow: "-0.1vh 0.1vh 0.1vh 0vh var(--colorBrownGray)", border: "2px solid var(--colorShadowBrownGray)", background: "white",  width: "100%", height: "5vh", position: "relative"}}>
+																
+																<div style={{ background: "var(--colorShadowBrownGray)", height: "3px", width: "100%", position: "relative", top: "30%"}}></div>
+																<div style={{ background: "var(--colorShadowBrownGray)", height: "3px", width: "100%", position: "relative", top: "50%"}}></div>
+															</div>
+														</div>
+													</div>
+												}
+										</div>
+									</div>
+								) : (
+								<div style={{borderRadius: "5vh", padding: "3vh 2vw", width: "100%", height: "100%"}}>
+										<div style={{marginBottom: "1.5vh", display: "inline-flex", fontSize: "2.5vh"}}>
+											<p style={{marginRight: "1vw"}}>- Log from </p>
+											<p>{logName}</p>
+											<div style={{display: "flex", flexDirection: "row-reverse", width: "27vw"}}>
+												<button className={"button_reset"} style={{maxHeight: "4vh", paddingTop: "0vh"}} onClick={() => {setLog_type(false)}}>-> Back to menu</button>
+											</div>
+										</div>
+										<div style={{border: "3px solid var(--colorShadowBrownGray)", boxShadow: "-0.9vh 0.4vh 0.5vh 0.1vh var(--colorBrownGray)", width: "100%", height: "90%", }}>
+											<Editor 
+												options={{
+													fontSize: "13vh",
+													wordWrap: "on",
+												}}
+												theme="vs-dark"
+												height="100%" 
+												width="100%"
+												defaultLanguage="plaintext"
+												value={code} />
+										</div>
+									</div>
+								)}
+							
+							
+							
 									
 								
 							</div>
-							
 						</div>
 					</div>
 				</div>
