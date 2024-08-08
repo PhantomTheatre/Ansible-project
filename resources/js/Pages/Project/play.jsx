@@ -511,7 +511,7 @@ export default function MainComponent(props) {
 															<div>Local: {el[1]['local']}</div>
 															<div>Created by: {el[1]['created_by']}</div>
 															<div>Group: {el[1]['group']}</div>
-															<div>{el[1]['global']== true && <p>{'\u2713'}Global</p>}</div>
+															<div>{el[1]['global']== "true" && <p>{'\u2713'}Global</p>}</div>
 															
 														</div>
 														) : (

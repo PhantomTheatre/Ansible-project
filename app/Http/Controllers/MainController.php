@@ -73,24 +73,40 @@ class MainController extends Controller
 		if (Cache::store('database')->get('local') != "none" and (Cache::store('database')->get('right') == "read" or Cache::store('database')->get('right') == "none")) {
 			return Inertia::render('Project/block', ['print' => 'Недостаточно прав']);
 		} else {
-			$this->SelectedHosts_update();
-			return Inertia::render('Project/hosts',  ['user' =>Cache::store('database')->get('user'), 'local' =>Cache::store('database')->get('local'),  'hosts' => Cache::store('database')->get('selected_hosts')]);
+			$user = Cache::store('database')->get('user');
+			$hosts = new host();
+			$selected_hosts = array();
+			foreach ($hosts->all() as $host) {
+				if (Cache::store('database')->get('local') != "none") {
+					if ($host->local == Cache::store('database')->get('local')) {
+						if  (Cache::store('database')->get('right') == "none"){
+							if ($host->global == 'true') {
+								array_push($selected_hosts,$host);
+							}
+						} else { array_push($selected_hosts,$host);}
+					} else if ($host->local == 'none' and $host->created_by == $user) {
+						array_push($selected_hosts,$host);
+					}
+				} else if ($host->created_by == $user){ array_push($selected_hosts,$host);}
+			}
+			return Inertia::render('Project/hosts',  ['user' =>Cache::store('database')->get('user'), 'local' =>Cache::store('database')->get('local'),  'hosts' => $selected_hosts]);
 		}
 	}
 	public function save_hosts(Request $request) {
 		$host = new host();
+		if ($request->group_on == true) {$group= $request->group;}
+		else {$group= "none";};
 		$data = array(
 			'name' => $request->input('name'),
 			'ip' => $request->input('ip'),
 			'login' => $request->input('login'),
 			'password' => $request->input('password'),
-			'group' => $request->input('group'),
+			'group' => $group,
 			'local' => Cache::store('database')->get('local'),
 			'global' => $request->input('global_'),
 			'created_by' => Cache::store('database')->get('user'),
 		);
 		$host->create($data);
-		
 		return redirect('/');
 	}	
 	public function hosts_edit(Request $request) {
@@ -106,13 +122,29 @@ class MainController extends Controller
 		if (Cache::store('database')->get('local') != "none" and (Cache::store('database')->get('right') == "read" or Cache::store('database')->get('right') == "none"))  {
 			return Inertia::render('Project/block', ['print' => 'Недостаточно прав']);
 		} else {
-			$this->SelectedRoles_update();
+			
+			$user = Cache::store('database')->get('user');
+			$roles = new role();
+			$selected_roles = array();
+			foreach ($roles->all() as $role) {
+				if (Cache::store('database')->get('local') != "none") {
+					if ($role->local == Cache::store('database')->get('local')) {
+						if  (Cache::store('database')->get('right') == "none"){
+							if ($role->global == 'true') {
+								array_push($selected_roles,$role);
+							}
+						} else { array_push($selected_roles,$role);}
+					} else if ($role->local == 'none' and $role->created_by == $user) {
+						array_push($selected_roles,$role);
+					}
+				} else if ($role->created_by == $user){ array_push($selected_roles,$role);}
+			}
 			$codes = [];
-			foreach (Cache::store('database')->get('selected_roles') as $role) {
+			foreach ($selected_roles as $role) {
 				$code = Storage::disk('local')->get("/ansible/roles/{$role->name}/tasks/main.yml");
 				$codes[$role->id] = $code;
 			}
-			return Inertia::render('Project/roles', ['user' =>Cache::store('database')->get('user'), 'local' =>Cache::store('database')->get('local'), 'roles'=>Cache::store('database')->get('selected_roles'), 'codes' => $codes]);
+			return Inertia::render('Project/roles', ['user' =>Cache::store('database')->get('user'), 'local' =>Cache::store('database')->get('local'), 'roles'=>$selected_roles, 'codes' => $codes]);
 		}
 	}
 	public function save_roles(Request $request) {
