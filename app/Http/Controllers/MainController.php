@@ -71,6 +71,19 @@ class MainController extends Controller
 		}
 		Cache::store('database')->put('selected_roles', $selected_roles, 1800);
 	}
+	public function SelectedLocals_update() {
+		$selected_locals = array();
+		$get_user = Cache::store('database')->get('user');
+		
+		$fileUser = json_decode(json: (File::get( base_path("storage/app/private/users/{$get_user}/locals.json"))), associative: true);
+		if (gettype($fileUser)!= gettype(NULL)){
+			foreach (array_keys($fileUser) as $local) {
+				$selected_locals[$local] = ['name'=>$local, 'right'=>$fileUser[$local]];
+			}
+		}
+		
+		Cache::store('database')->put('selected_locals', $selected_locals, 1800);
+	}
    
    public function MainPage() {
 		if (Cache::store('database')->get('user') == null){
@@ -275,14 +288,9 @@ class MainController extends Controller
 		} else  {
 			return Inertia::render('Project/local_create',  ['hosts' => Cache::store('database')->get('selected_hosts')] ); 
 		}*/
-		$selected_locals = array();
-		$get_user = Cache::store('database')->get('user');
-		$fileUser = json_decode(json: (File::get( base_path("storage/app/users/{$get_user}/locals.json"))), associative: true);
-		foreach (array_keys($fileUser) as $local) {
-			$selected_locals[$local] = ['name'=>$local, 'right'=>$fileUser[$local]];
-		}
 		
-		return Inertia::render('Project/local_create',  ['locals' => $selected_locals] ); 
+		$this->SelectedLocals_update();
+		return Inertia::render('Project/local_create',  ['locals' => Cache::store('database')->get('selected_locals')] ); 
 	}
 	
 	public function local_exit() {
@@ -308,6 +316,7 @@ class MainController extends Controller
 				Storage::disk('local')->put("/users/{$get_user}/locals.json", json_encode($fileUser));
 			}
 		}
+		$this->SelectedLocals_update();
 		return redirect('/local');
 	}
 	public function local_create(Request $request) {
@@ -323,11 +332,14 @@ class MainController extends Controller
 		);
 		Storage::disk('local')->put("/locals/{$request->input('nameNew')}.json", json_encode($file));
 		
+		$get_user = Cache::store('database')->get('user');
+		$fileUser = json_decode(json: (File::get( base_path("storage/app/private/users/{$get_user}/locals.json"))), associative: true);
+		$get_user = Cache::store('database')->get('user');
+		$fileUser[$request->nameNew] = "admin";
+		Storage::disk('local')->put("/users/{$get_user}/locals.json", json_encode($fileUser));
 		
-		Cache::store('database')->put('local', $request->input('nameNew'), 1800);
-		Cache::store('database')->put('right', 'admin', 1800);
-		DB::table('myusers')->where('login', Cache::store('database')->get('user'))->update(array('local'=>$request->input('nameNew'), 'right'=> 'admin',  ));
 		
+		$this->SelectedLocals_update();
 		return redirect('/local');
 	}
 	public function local_edit(Request $request) {
