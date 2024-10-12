@@ -7,9 +7,9 @@ import Button from './button';
 export default function Theme(props) {
 	const { auth } = usePage().props;
 	const { user, local } = useContext(Global);
-	
+
 	let self_object = useRef(null);
-	
+
 	const Hover = () => {
 		document.getElementById("shadow").style.visibility = "visible";
 		clearInterval(self_object.flow_right);
@@ -36,7 +36,7 @@ export default function Theme(props) {
 			}, 10);
 		}
 	}
-	
+
 	return (
 		<div>
 			<div style = {{ zIndex:"-1", position:"absolute", width:"100vw", height:"100vh", background: "var(--colorBackground)", top:"0"}}></div>
@@ -66,7 +66,7 @@ export default function Theme(props) {
 					</ul>
 				</div>
 			</div>
-			<div style = {{display:"inline-grid", gridTemplateColumns: "55vw 20vw", width:"100vw"}}>
+			<div style = {{display:"inline-grid", gridTemplateColumns: props.indent+"vw 20vw", width:"100vw"}}>
 				<div style = {{marginLeft:"15vw",  fontSize: "6vh", }}>
 					<h1 style = {{position: "relative", top: "4vh", left:"-1.5vw"}}>{props.page} Page</h1>
 					<div style = {{ transform: "perspective(10vw) rotateX(-18deg)", width: "24vw", height: "6vh", borderRight: "solid", borderBottom: "solid", position: "relative", top: "-0.2vh", left: "-5vw", }}></div>
@@ -80,7 +80,7 @@ export default function Theme(props) {
 					))}
 				</div>
 			</div>
-			
+
 		</div>
 	)
 }

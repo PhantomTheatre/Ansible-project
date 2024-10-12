@@ -13,14 +13,14 @@
 }
 
 .check_button {
-	width: 2.7vh; 
-	height: 2.7vh; 
-	background: white; 
+	width: 2.7vh;
+	height: 2.7vh;
+	background: white;
 	border: 2px solid var(--colorShadowBrownGray);
-	margin-left: 1vw;  
+	margin-left: 1vw;
 	border-radius: 40%;
 	box-shadow: -0.1vh 0.1vh 0.1vh 0.1vh var(--colorBrownGray);
-	display:flex; 
+	display:flex;
 	align-items: center;
 	justify-content: center;
 }
@@ -28,17 +28,17 @@
 	box-shadow: 0vh 0vh 0.5vh 0.2vh #cccc00;
 }
 .check_true {
-	background: green; 
+	background: green;
 }
 .button_submit {
-	background: green; 
+	background: green;
 	padding: 0.5vh 1.5vh;
 	box-shadow: -0.4vh 0.4vh 0.2vh 0.1vh #004c00;
 	border: 2px solid #006600;
 	border-radius: 0.5rem;
 }
 .button_submit:hover {
-	background: #198c19; 
+	background: #198c19;
 	border: 2px solid #197519;
 }
 .button_reset {
@@ -49,18 +49,18 @@
 	border-radius: 0.5rem;
 }
 .button_reset:hover {
-	background: #507179; 
+	background: #507179;
 	border: 2px solid var(--colorBackground);
 }
 .button_delete {
-	background: var(--colorBrownGray); 
+	background: var(--colorBrownGray);
 	padding: 0.5vh 1.5vh;
 	box-shadow: -0.4vh 0.4vh 0.2vh 0.1vh var(--colorBrownGray);
 	border: 2px solid var(--colorShadowBrownGray);
 	border-radius: 0.5rem;
 }
 .button_delete:hover {
-	background: #b20000; 
+	background: #b20000;
 	border: 2px solid #7c0000;
 }
 .select {
@@ -156,4 +156,38 @@
 
 .stroke {
 	-webkit-text-stroke: 1px black;
+}
+.lineBig {
+	border-radius: 10px;
+    box-shadow: -0.2vw 0.3vh 0.2px 0.2px #443f36;
+    background: var(--colorBrownGray);
+    border: solid #524c41 3px;
+}
+.m-selector{
+    box-shadow: -0.2vw 0.3vh 0.2px 0.1px #443f36 inset;
+    border-radius: 10px;
+    margin:0.3vh 0vw;
+    width:10vw;
+    display:flex;
+    justify-content:center;
+    background: #507179;
+    transition: all 0.2s;
+}
+.m-selector:hover{
+    border-radius: 12px;
+    background: #48656c;
+    cursor:pointer;
+    transition: all 0.2s;
+}
+.m-selectorS{
+    box-shadow: -0.2vw 0.3vh 0.2px 0.2px #443f36;
+    border-radius: 15px;
+    background: var(--colorBackground);
+    transition: all 0.2s;
+}
+.m-selectorS:hover{
+    border-radius: 15px;
+    background: var(--colorBackground);
+    cursor:pointer;
+    transition: all 0.2s;
 }

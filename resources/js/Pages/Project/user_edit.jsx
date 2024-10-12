@@ -9,19 +9,19 @@ export default function MainComponent(props) {
 	const actions = [props.user];
 	const [type, setType] = useState(actions[0]);
 	const [selected_type, setSelected_type] = useState(type);
-	
+
 	const [login, setLogin] = useState(props.db_user.login);
 	const [password, setPassword] = useState(props.db_user.password);
 	const [email, setEmail] = useState(props.db_user.email);
-	
+
 	const [typeEdit, setTypeEdit] = useState(false);
-	
+
 	const [errors, setErrors] = useState([]);
 	const [selected_error, setSelected_error] = useState("");
-	
+
 	let self_object = useRef(null);
 	self_object.rotation=5;
-	
+
 	const Change = () => {
 		clearInterval(self_object.change_flow);
 		document.getElementById(type).style.visibility = "visible";
@@ -45,16 +45,16 @@ export default function MainComponent(props) {
 			}
 		}, 10);
 	}
-	
-	
+
+
 	useEffect(() => {
 		if (type != selected_type) {
 			Change();
 			console.log(document.getElementById(selected_type).style.transform);
 		}
 	}, [type]);
-	
-	const SaveData = () => { 
+
+	const SaveData = () => {
 		let new_errors = [];
 		let regex = /^((?!.*\s\s)[0-9a-z]([0-9a-z\s\-\_]{1,13})[0-9a-z])$/i  ;
 		if (!regex.test(login)) {new_errors.push("login_error")}
@@ -73,24 +73,24 @@ export default function MainComponent(props) {
 			}
 		}
 	};
-	
-	
+
+
 	const Delete = () => {
 		router.post("/user/delete");
 	};
 	const Exit = () => {
 		router.post("/user/exit");
 	};
-	
+
 	return (
 		<Global.Provider value = {{user : props.user, local : props.local}}>
 			<div>
-				<Page_theme page={"User"} actions={actions} type = {type} setType={setType}/>
+				<Page_theme page={"User"} actions={actions} type = {type} setType={setType} indent={"56"}/>
 				<div  style = {{ position: "absolute", marginLeft:"11vw", marginTop:"2vh", height: "67vh", width: "85vw", background: "var(--colorBrownGray)", borderRadius: "5% 5% 5% 20%", boxShadow: "-2vw 2.5vh 10px 1px var(--colorShadowBackground)"}}>
 					<div style = {{ overflow: "hidden", position: "relative", marginLeft:"2vw", marginTop:"3vh", height: "63vh", width: "81vw", display:"grid", gridTemplateColumns: "20vw 60vw"}}>
 						<div style = {{marginLeft: "2vw", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", position: "relative", background: "var(--colorLightGray)", height: "45vh"}}>
-						
-					
+
+
 
 							<div  style = {{margin:"2vh", fontSize: "2vh"}}>
 								<p style = {{display: "flex", justifyContent: "center", fontSize: "3vh"}}>Log panel:</p>
@@ -116,7 +116,7 @@ export default function MainComponent(props) {
 													))}
 												</select>
 											</div>
-											{selected_error == "name_error" && 
+											{selected_error == "name_error" &&
 											<div>
 												<p> It's error in "name" input field:</p>
 												<p> - must consist of 3-15 signs</p>
@@ -126,14 +126,14 @@ export default function MainComponent(props) {
 												<p> - It hadn't content 2 consecutive spaces</p>
 											</div>
 											}
-											{selected_error == "file_error" && 
+											{selected_error == "file_error" &&
 											<div>
 												<p> It's error in "file" input field:</p>
 												<p> You have to add some file </p>
 												<p> or change type and write new </p>
 											</div>
 											}
-											{selected_error == "group_error" && 
+											{selected_error == "group_error" &&
 											<div>
 												<p> - must consist of 3-15 signs</p>
 												<p> It's error in "group" input field:</p>
@@ -144,54 +144,54 @@ export default function MainComponent(props) {
 											</div>
 											}
 										</div>
-									) : ( 
+									) : (
 										<div style={{display: "flex", flexDirection: "column", alignItems: "center", marginLeft: "-0.5vw"}}>
 											<p className={"stroke"} style={{fontSize: "3vh", color: "green", }}>Success edit</p>
 										</div>
 									)}
 								</div>
 							</div>
-							
-							
-							
-						
+
+
+
+
 						</div>
 						<div style = {{marginLeft: "3vw"}}>
 							<div id = {actions[0]} style = {{borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "left ", opacity: "1", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
-								
+
 									<div style= {{marginLeft: "2vw", marginTop: "3vh", position: "absolute"}} >
 										<p style= {{fontSize: "3vh", marginRight: "1vw"}}>Edit user panel:</p>
 										<div style= {{marginLeft: "2vw"}}>
 											<div>
 													<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("login_error") ? ("visible") : ("collapse"), position: "absolute", width: "130%", height: "4vh", background: "red"}}></div>
 													<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"2vh"}}>Login:</p>
-													<input 
+													<input
 														className={"text_field"}
 														style= {{marginLeft: "1.5vw", width: "15vw"}}
-														value={login} 
-														onChange={(e)=>setLogin(e.target.value)} 
+														value={login}
+														onChange={(e)=>setLogin(e.target.value)}
 														type="login" name="login" id="login" placeholder="Login"/>
 											</div>
-											
+
 											<div>
 												<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("password_error") ? ("visible") : ("collapse"), position: "absolute", width: "130%", height: "4vh", background: "red"}}></div>
 													<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"0.5vh"}}>Password:</p>
-													<input 
+													<input
 														className={"text_field"}
 														style= {{marginLeft: "1.5vw", width: "15vw"}}
-														value={password} 
-														onChange={(e)=>setPassword(e.target.value)} 
+														value={password}
+														onChange={(e)=>setPassword(e.target.value)}
 														type="password" name="password" id="password" placeholder="Password"/>
 											</div>
-											
+
 											<div>
 													<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("email_error") ? ("visible") : ("collapse"), position: "absolute", width: "130%", height: "4vh", background: "red"}}></div>
 													<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"0.5vh"}}>Email:</p>
-													<input 
+													<input
 														className={"text_field"}
 														style= {{marginLeft: "1.5vw", width: "15vw"}}
-														value={email} 
-														onChange={(e)=>setEmail(e.target.value)} 
+														value={email}
+														onChange={(e)=>setEmail(e.target.value)}
 														type="email" name="email" id="email" placeholder="Email"/>
 											</div>
 										</div>
@@ -203,7 +203,7 @@ export default function MainComponent(props) {
 										</div>
 									</div>
 								</div>
-								
+
 							</div>
 						</div>
 					</div>

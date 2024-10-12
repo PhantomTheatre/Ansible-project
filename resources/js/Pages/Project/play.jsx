@@ -11,31 +11,31 @@ export default function MainComponent(props) {
 	const actions = ["Play", "Hosts", "Roles", "Logs"];
 	const [type, setType] = useState(actions[0]);
 	const [selected_type, setSelected_type] = useState(type);
-	
+
 	const [selectedHosts, setSelectedHosts] = useState([]);
 	const [Hosts, setHosts] = useState(Object.entries(props.hosts));
 	const [HostsFilter, setHostsFilter] = useState(Object.entries(props.hosts));
-	
+
 	const [selectedRoles, setSelectedRoles] = useState([]);
 	const [Roles, setRoles] = useState(Object.entries(props.roles));
 	const [RolesFilter, setRolesFilter] = useState(Object.entries(props.roles));
-	
+
 	const [Logs, setLogs] = useState(Object.entries(props.logs));
 	const [LogsFilter, setLogsFilter] = useState(Object.entries(props.logs));
 	const [code, setCode] = useState("a");
 	const [logName, setLogName] = useState("a");
-	
+
 	const [errors, setErrors] = useState([]);
 	const [selected_error, setSelected_error] = useState("");
-	
+
 	const [search_host, setSearch_host] = useState("");
 	const [single_on_host, setSingle_on_host] = useState(true);
-	
+
 	const [search_role, setSearch_role] = useState("");
 	const [single_on_role, setSingle_on_role] = useState(true);
-	
+
 	const [log_type, setLog_type] = useState(false);
-	
+
 	const [mouse, setMouse] = useState("up");
 	const MouseMove = () => {
 		let min = 225;
@@ -69,10 +69,10 @@ export default function MainComponent(props) {
 			});
 		}
 	}
-	
+
 	let self_object = useRef(null);
 	self_object.rotation=5;
-	
+
 	const Change = () => {
 		clearInterval(self_object.change_flow);
 		document.getElementById(type).style.visibility = "visible";
@@ -96,7 +96,7 @@ export default function MainComponent(props) {
 			}
 		}, 10);
 	}
-	
+
 	const HostsChange = (eve, el) => {
 		if (single_on_host == true) {
 			let index = selectedHosts.indexOf(el[1]["name"]);
@@ -142,12 +142,12 @@ export default function MainComponent(props) {
 			})
 			setHosts(Object.entries(new_group_hosts_final));
 			setHostsFilter(Object.entries(new_group_hosts_final));
-			
+
 		} else {
 			setHosts(Object.entries(props.hosts));
 			setHostsFilter(Object.entries(props.hosts));
 		}
-		
+
 	}
 	const groupRoleChange = () => {
 		[...document.getElementsByClassName("toggle_role")].forEach((el)=> {
@@ -167,20 +167,20 @@ export default function MainComponent(props) {
 			})
 			setRoles(Object.entries(new_group_roles_final));
 			setRolesFilter(Object.entries(new_group_roles_final));
-			
+
 		} else {
 			setRoles(Object.entries(props.roles));
 			setRolesFilter(Object.entries(props.roles));
 		}
-		
+
 	}
-	
+
 	const LogChange = (el) => {
 		setLog_type(true);
 		setCode(el[1][0]);
 		setLogName(el[1][1].slice(el[1][1].lastIndexOf('/')+1, -13) + " / " + el[1][1].slice(-12, -4));
 	}
-	
+
 	useEffect(() => {
 		Object.entries(document.getElementsByClassName("shadow_bottom")).forEach((el) => {
 				if (el[1].parentElement.children[1].children.length <= 7 ){ el[1].style.visibility = "hidden"}
@@ -189,13 +189,13 @@ export default function MainComponent(props) {
 				if (el[1].parentElement.children[1].children.length <= 7 ){ el[1].style.visibility = "hidden"}
 			});
 	}, []);
-	
+
 	useEffect(() => {
 		if (type != selected_type) {
 			Change();
 		}
 	}, [type]);
-	
+
 	useEffect(() => {
 		if (search_host == "" && single_on_host==true) { setHostsFilter(Object.entries(props.hosts))}
 		else if (search_host == "" && single_on_host==false) {setHostsFilter(Hosts)}
@@ -228,7 +228,7 @@ export default function MainComponent(props) {
 			setRolesFilter(new_role_filter);
 		}
 	}, [search_role]);
-	
+
 	useEffect(() => {
 		if (document.getElementById("HostMenu").children[0].classList.length != 0) {
 			[...document.getElementById("HostMenu").children].forEach ((el) => {
@@ -248,7 +248,7 @@ export default function MainComponent(props) {
 			});
 		}
 	}, [HostsFilter]);
-	
+
 	useEffect(() => {
 		if (document.getElementById("RoleMenu").children[0].classList.length != 0) {
 			[...document.getElementById("RoleMenu").children].forEach ((el) => {
@@ -268,9 +268,9 @@ export default function MainComponent(props) {
 			});
 		}
 	}, [RolesFilter]);
-	
+
 	const Start = () => {
-		
+
 		let final_selectedHosts = [];
 			Object.values(props.hosts).forEach((el) => {
 				if ((single_on_host== true && selectedHosts.indexOf(el['name']) != -1) || (single_on_host== false && selectedHosts.indexOf(el['group']) != -1)) {
@@ -283,22 +283,22 @@ export default function MainComponent(props) {
 				final_selectedRoles.push(el['id'])
 			}
 		})
-		
+
 		router.post("/play/launch", {final_selectedRoles, final_selectedHosts, single_on_role, single_on_host});
 	};
-	
-	
-	
+
+
+
 	return (
 		<Global.Provider value = {{user : props.auth.user, local : props.auth.local}}>
 			<div>
-				<Page_theme page={"Play"} actions={actions} type = {type} setType={setType}/>
+				<Page_theme page={"Play"} actions={actions} type = {type} setType={setType} indent={"36"}/>
 				<div  style = {{ position: "absolute", marginLeft:"11vw", marginTop:"2vh", height: "67vh", width: "85vw", background: "var(--colorBrownGray)", borderRadius: "5% 5% 5% 20%", boxShadow: "-2vw 2.5vh 10px 1px var(--colorShadowBackground)"}}>
 					<div style = {{ overflow: "hidden", position: "relative", marginLeft:"2vw", marginTop:"3vh", height: "63vh", width: "81vw", display:"grid", gridTemplateColumns: "20vw 60vw"}}>
 						<div style = {{marginLeft: "2vw", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", position: "relative", background: "var(--colorLightGray)", height: "45vh"}}>
-						
-							
-							
+
+
+
 							<div  style = {{margin:"2vh", fontSize: "2vh"}}>
 								<p style = {{display: "flex", justifyContent: "center", fontSize: "3vh"}}>Log panel:</p>
 								<div  style = {{marginLeft:"0.5vw", marginTop: "0.5vh"}}>
@@ -336,7 +336,7 @@ export default function MainComponent(props) {
 												</div>
 											)}
 										</div>
-									) : ( 
+									) : (
 										<div style={{display: "flex", flexDirection: "column", alignItems: "center", marginLeft: "-0.5vw"}}>
 											<p className={"stroke"} style={{fontSize: "3vh", color: "green", }}>Success edit</p>
 											<u style={{fontSize: "2.3vh"}}>{errors[2]}</u>
@@ -344,32 +344,32 @@ export default function MainComponent(props) {
 									)}
 								</div>
 							</div>
-							
-							
-							
-							
-						
+
+
+
+
+
 						</div>
 						<div style = {{marginLeft: "3vw"}}>
 							<div id = {actions[0]} style = {{borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "left ", opacity: "1", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
-							
+
 								<div style= {{ marginTop: "3vh", position: "absolute", width: "100%"}} >
 										<p style= {{fontSize: "4vh", marginBottom: "3vh", display: "flex", justifyContent: "center", alignItems: "center", width:"100%"}}>Start your project</p>
 										<div style= {{marginLeft: "2vw", display: "inline-grid", gridTemplateColumns: "46% 47%", width: "100%"}}>
-											
+
 											<div>
 												<div style = {{borderRadius: "3% 25% 3% 3%", boxShadow: "-0.1vw 0vh 10px 5px var(--colorShadowBrownGray)",   background: "var(--colorLightGray)", height: "40vh"}}>
 													<p style= {{fontSize: "3vh", display: "flex", alignItems: "center", width:"95%", marginLeft: "2vw", paddingTop: "1.5vh"}}>Selected Hosts</p>
 													<div style={{borderRadius: "0 5px 0 0", background: "black", width: "24vw", height: "3px", marginLeft: "1.9vw", boxShadow: "0.1vw 0.2vh 0px 0.5px var(--colorShadowBrownGray)",}}></div>
-															
+
 															{ selectedHosts.filter(function () { return true }).length != 0 ? (
 																<div style={{background: "transparent", width: "21.5vw", height: "28.5vh", margin: "2.1vh 2vw", boxShadow: "inset 0vw 0.2vh 10px 5px var(--colorShadowBrownGray)", display: "inline-grid", gridTemplateColumns: "12.5vw 9vw"}}>
 																	<div style= {{fontSize: "2.3vh", marginLeft: "1.5vw", display: "flex", alignItems: "center", justifyContent: "center", padding: "3vh 0vw", }}>
-																		<div style={{zIndex: "2", overflow: "scroll", padding: "0.4vh", borderRadius: "5px 5px 5px 5px", display: "flex", flexDirection: "column", alignItems: "center", background: "transparent", width: "100%", height: "23vh", boxShadow: "-0.2vw 0.2vh 3px 0px var(--colorShadowBrownGray)",   border:"solid 4px var(--colorShadowBrownGray)",}}>
+																		<div style={{zIndex: "2", overflowY: "scroll", padding: "0.4vh", borderRadius: "5px 5px 5px 5px", display: "flex", flexDirection: "column", alignItems: "center", background: "transparent", width: "100%", height: "23vh", boxShadow: "-0.2vw 0.2vh 3px 0px var(--colorShadowBrownGray)",   border:"solid 4px var(--colorShadowBrownGray)",}}>
 																			{selectedHosts.map((el) => (
 																			<div key = {el} style={{display: "flex", flexDirection: "column", alignItems: "center", }}>
 																				<div>{el}</div>
-																				<div style={{background: "black", width: "10vw", height: "2px"}}></div>
+																				<div style={{background: "black", width: "9vw", height: "2px"}}></div>
 																			</div>
 																			))}
 																		</div>
@@ -387,28 +387,28 @@ export default function MainComponent(props) {
 																	</div>
 																</div>
 															)}
-														
-														
+
+
 												</div>
 											</div>
-											
+
 											<div>
 												<div style = {{marginLeft: "2vh", borderRadius: "25% 3% 3% 3%", boxShadow: "-0.1vw 0vh 10px 5px var(--colorShadowBrownGray)",   background: "var(--colorLightGray)", height: "40vh"}}>
 													<p style= {{fontSize: "3vh", display: "flex", flexDirection: "row-reverse", paddingRight: "2.5vw", alignItems: "center", width:"95%", marginLeft: "2vw", paddingTop: "1.5vh"}}>Selected Roles</p>
 													<div style={{borderRadius: "5px 0 0 0", background: "black", width: "24vw", height: "3px", marginLeft: "0.4vw", boxShadow: "-0.1vw 0.2vh 0px 0.5px var(--colorShadowBrownGray)",}}></div>
-													
-														
+
+
 														{ selectedRoles.filter(function () { return true }).length != 0 ? (
 															<div style={{background: "transparent", width: "21.5vw", height: "28.5vh", margin: "2.1vh 2vw", boxShadow: "inset 0vw 0.2vh 10px 5px var(--colorShadowBrownGray)", display: "inline-grid", gridTemplateColumns: "8.5vw 11.5vw"}}>
 																<div style= {{fontSize: "2.5vh", display: "flex", alignItems: "center", justifyContent: "center", paddingBottom: "10vh"}}>
 																	<div style={{borderRadius: "2px 10px 2px 2px", background: "transparent",  boxShadow: "-0.2vw 0.2vh 3px 0px var(--colorShadowBrownGray)",   border:"solid 4px var(--colorShadowBrownGray)", padding: "1vh 1vw", }}>{single_on_role ? <p>Singe</p> : <p>Group</p>}</div>
 																</div>
 																<div style= {{fontSize: "2.3vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "3vh 0vw", }}>
-																	<div style={{zIndex: "2", overflow: "scroll", padding: "0.4vh", borderRadius: "5px 5px 5px 5px", display: "flex", flexDirection: "column", alignItems: "center", background: "transparent", width: "100%", height: "23vh", boxShadow: "-0.2vw 0.2vh 3px 0px var(--colorShadowBrownGray)",   border:"solid 4px var(--colorShadowBrownGray)",}}>
+																	<div style={{zIndex: "2", overflowY: "scroll", padding: "0.4vh", borderRadius: "5px 5px 5px 5px", display: "flex", flexDirection: "column", alignItems: "center", background: "transparent", width: "100%", height: "23vh", boxShadow: "-0.2vw 0.2vh 3px 0px var(--colorShadowBrownGray)",   border:"solid 4px var(--colorShadowBrownGray)",}}>
 																		{selectedRoles.map((el) => (
 																		<div key = {el} style={{display: "flex", flexDirection: "column", alignItems: "center", }}>
 																			<div>{el}</div>
-																			<div style={{background: "black", width: "10vw", height: "2px"}}></div>
+																			<div style={{background: "black", width: "9vw", height: "2px"}}></div>
 																		</div>
 																		))}
 																	</div>
@@ -421,12 +421,12 @@ export default function MainComponent(props) {
 																</div>
 															</div>
 														)}
-														
-														
+
+
 												</div>
 											</div>
-											
-										
+
+
 										</div>
 										<div style = {{position: "absolute", width: "100%", display: "flex", flexDirection: "row", justifyContent: "center",  marginTop: "-20vh", marginLeft: "0.5vw"}}>
 											<div style={{display: "flex", justifyContent: "center", alignItems: "center", width:"100%", height: "21vh", overflow: "hidden", position: "absolute", marginTop: "2.5vh", paddingTop: "15vh"}}>
@@ -459,26 +459,26 @@ export default function MainComponent(props) {
 												<p >Start</p>
 											</div>
 										)}
-										
-							
+
+
 							</div>
-								
-							
-							
+
+
+
 							</div>
 							<div id = {actions[1]} style = {{visibility: "collapse", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "right ", top:"-60vh", opacity: "0", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
 								<div style= {{paddingLeft: "2vw", paddingTop: "3vh", position: "absolute", width: "96.5%"}} >
 										<div style={{display:"inline-flex", marginBottom: "0.8vh"}}>
 											<p style= {{fontSize: "3vh"}}>Your available hosts:</p>
 											<div style={{display:"inline-flex", flexDirection: "row-reverse", width: "38vw", alignItems: "center"}}>
-													<input 
+													<input
 														className={"text_field"}
 														style= {{marginLeft: "1.5vw", width: "18vw"}}
-														value={search_host} 
-														onChange={(e)=>setSearch_host(e.target.value)} 
+														value={search_host}
+														onChange={(e)=>setSearch_host(e.target.value)}
 														type="search_host" name="search_host" id="search_host" placeholder="Search"/>
 													<p style= {{fontSize: "2.5vh", marginLeft: "1vw", marginTop:"0vh"}}>Seach:</p>
-													
+
 													<div style={{display: "inline-flex"}}>
 														<div onClick={() =>{groupHostChange()}} className ={"toggle toggle_host toggle_select text_field"} >
 															<p>Single</p>
@@ -490,12 +490,12 @@ export default function MainComponent(props) {
 															<p>Groupe</p>
 														</div>
 													</div>
-													
+
 											</div>
 										</div>
 										<div style={{overflow: "hidden", display: "inline-flex", background:"transparent",  width: "100%", height: "45vh",padding: "2vh 0vw", border: "2px solid var(--colorShadowBrownGray)", boxShadow: "inset 0vh 0vh 0.5vh 0.4vh var(--colorBrownGray)"}}>
 											<div className={"shadow_top"} style={{zIndex: "5", opacity: "0", position: "absolute", marginLeft: "1.4vw", marginTop: "-2vh", display: "flex", dlexDirection: "reverse-collumn", background: "linear-gradient(var(--colorBrownGray) 6%,  transparent 70%)", width: "48vw", height: "4vh"}}></div>
-											<div  id={"HostMenu"} className = {"SelectMenu"} style={{position: "relative", top: "0vh", width: "95%", height: "47vh",}}>	
+											<div  id={"HostMenu"} className = {"SelectMenu"} style={{position: "relative", top: "0vh", width: "95%", height: "47vh",}}>
 												{HostsFilter.map((el) => (
 													single_on_host == true ? (
 													<div onClick={(e) => {HostsChange(e, el)}} className={"item"} style={{fontSize: "1.8vh", display: "grid", gridTemplateColumns: '2vw 7vw 11vw 11vw 8vw 5vw', margin: "0.5vh 1.5vw", padding: "0.8vh", width: "100%", alignItems: "center"}} key={el} value={el}>
@@ -505,7 +505,7 @@ export default function MainComponent(props) {
 														<div>Created by: {el[1]['created_by']}</div>
 														<div>Group: {el[1]['group']}</div>
 														<div>{el[1]['global']== true && <p>{'\u2713'}Global</p>}</div>
-														
+
 													</div>
 													) : (
 														<div onClick={(e) => {HostsChange(e, el)}} className={"item"} style={{fontSize: "1.8vh", display: "grid", gridTemplateColumns: '2vw 25vw 17vw', margin: "0.5vh 1.5vw", padding: "0.8vh", width: "100%", alignItems: "center"}} key={el} value={el}>
@@ -521,17 +521,17 @@ export default function MainComponent(props) {
 														There are no members available with the selected filter
 													</div>
 												}
-													
+
 											</div>
 											{HostsFilter.length != 0 &&
 												<div onMouseMove= {() => {MouseMove()}} onMouseLeave=  {() => {setMouse("up")}} className={"lazer" } style={{height: "40vh", width: "8%",  display: "flex", flexDirection: "row-reverse", overflow: "hidden", marginLeft: "1.1vw", }}>
 													<div style={{border: "2px solid var(--colorShadowBrownGray)", background: "#8b8479", height: "40vh", width: "40%",position: "relative", }} >
-														<div 
+														<div
 															onMouseDown= {() => {setMouse("down")}}
 															onMouseUp= {() => {setMouse("up")}}
 															className={"lazer_child"}
 															style={{position: "absolute", top:"0px", boxShadow: "-0.1vh 0.1vh 0.1vh 0vh var(--colorBrownGray)", border: "2px solid var(--colorShadowBrownGray)", background: "white",  width: "100%", height: "5vh", position: "relative"}}>
-															
+
 															<div style={{ background: "var(--colorShadowBrownGray)", height: "3px", width: "100%", position: "relative", top: "30%"}}></div>
 															<div style={{ background: "var(--colorShadowBrownGray)", height: "3px", width: "100%", position: "relative", top: "50%"}}></div>
 														</div>
@@ -541,25 +541,25 @@ export default function MainComponent(props) {
 											<div className={"shadow_bottom"} style={{visibility: "visible", zIndex: "5", opacity: "1", position: "absolute",  marginLeft: "1.4vw", marginTop: "38.5vh", display: "flex", dlexDirection: "reverse-collumn", background: "linear-gradient(transparent 30%,  var(--colorBrownGray) 95%)", width: "48vw", height: "4vh"}}></div>
 									</div>
 								</div>
-									
-								
+
+
 							</div>
 							<div id = {actions[2]} style = {{visibility: "collapse", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "right ", top:"-120vh", opacity: "0", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
-								
-								
-								
+
+
+
 								<div style= {{paddingLeft: "2vw", paddingTop: "3vh", position: "absolute", width: "96.5%"}} >
 											<div style={{display:"inline-flex", marginBottom: "0.8vh"}}>
 												<p style= {{fontSize: "3vh"}}>Your available roles:</p>
 												<div style={{display:"inline-flex", flexDirection: "row-reverse", width: "38vw", alignItems: "center"}}>
-														<input 
+														<input
 															className={"text_field"}
 															style= {{marginLeft: "1.5vw", width: "18vw"}}
-															value={search_role} 
-															onChange={(e)=>setSearch_role(e.target.value)} 
+															value={search_role}
+															onChange={(e)=>setSearch_role(e.target.value)}
 															type="search" name="search" id="search" placeholder="Search"/>
 														<p style= {{fontSize: "2.5vh", marginLeft: "1vw", marginTop:"0vh"}}>Seach:</p>
-														
+
 														<div style={{display: "inline-flex"}}>
 															<div onClick={() =>{groupRoleChange()}} className ={"toggle toggle_role toggle_select text_field"} >
 																<p>Single</p>
@@ -571,12 +571,12 @@ export default function MainComponent(props) {
 																<p>Groupe</p>
 															</div>
 														</div>
-														
+
 												</div>
 											</div>
 											<div style={{overflow: "hidden", display: "inline-flex", background:"transparent",  width: "100%", height: "45vh",padding: "2vh 0vw", border: "2px solid var(--colorShadowBrownGray)", boxShadow: "inset 0vh 0vh 0.5vh 0.4vh var(--colorBrownGray)"}}>
 												<div className={"shadow_top"} style={{zIndex: "5", opacity: "0", position: "absolute", marginLeft: "1.4vw", marginTop: "-2vh", display: "flex", dlexDirection: "reverse-collumn", background: "linear-gradient(var(--colorBrownGray) 6%,  transparent 70%)", width: "48vw", height: "4vh"}}></div>
-												<div  id = {"RoleMenu"} className = {"SelectMenu"} style={{position: "relative", top: "0vh", width: "95%", height: "47vh",}}>	
+												<div  id = {"RoleMenu"} className = {"SelectMenu"} style={{position: "relative", top: "0vh", width: "95%", height: "47vh",}}>
 													{RolesFilter.map((el) => (
 														single_on_role == true ? (
 														<div onClick={(e) => {RolesChange(e, el)}} className={"item"} style={{fontSize: "1.8vh", display: "grid", gridTemplateColumns: '2vw 7vw 11vw 11vw 8vw 5vw', margin: "0.5vh 1.5vw", padding: "0.8vh", width: "100%", alignItems: "center"}} key={el} value={el}>
@@ -586,7 +586,7 @@ export default function MainComponent(props) {
 															<div>Created by: {el[1]['created_by']}</div>
 															<div>Group: {el[1]['group']}</div>
 															<div>{el[1]['global']== "true" && <p>{'\u2713'}Global</p>}</div>
-															
+
 														</div>
 														) : (
 															<div onClick={(e) => {RolesChange(e, el)}} className={"item"} style={{fontSize: "1.8vh", display: "grid", gridTemplateColumns: '2vw 25vw 17vw', margin: "0.5vh 1.5vw", padding: "0.8vh", width: "100%", alignItems: "center"}} key={el} value={el}>
@@ -602,17 +602,17 @@ export default function MainComponent(props) {
 															There are no roles available with the selected filter
 														</div>
 													}
-														
+
 												</div>
 												{RolesFilter.length != 0 &&
 													<div onMouseMove= {() => {MouseMove()}} onMouseLeave=  {() => {setMouse("up")}} className={"lazer" } style={{height: "40vh", width: "8%",  display: "flex", flexDirection: "row-reverse", overflow: "hidden", marginLeft: "1.1vw", }}>
 														<div style={{border: "2px solid var(--colorShadowBrownGray)", background: "#8b8479", height: "40vh", width: "40%",position: "relative", }} >
-															<div 
+															<div
 																onMouseDown= {() => {setMouse("down")}}
 																onMouseUp= {() => {setMouse("up")}}
 																className={"lazer_child"}
 																style={{position: "absolute", top:"0px", boxShadow: "-0.1vh 0.1vh 0.1vh 0vh var(--colorBrownGray)", border: "2px solid var(--colorShadowBrownGray)", background: "white",  width: "100%", height: "5vh", position: "relative"}}>
-																
+
 																<div style={{ background: "var(--colorShadowBrownGray)", height: "3px", width: "100%", position: "relative", top: "30%"}}></div>
 																<div style={{ background: "var(--colorShadowBrownGray)", height: "3px", width: "100%", position: "relative", top: "50%"}}></div>
 															</div>
@@ -622,16 +622,16 @@ export default function MainComponent(props) {
 												<div className={"shadow_bottom"} style={{visibility: "visible", zIndex: "5", opacity: "1", position: "absolute",  marginLeft: "1.4vw", marginTop: "38.5vh", display: "flex", dlexDirection: "reverse-collumn", background: "linear-gradient(transparent 30%,  var(--colorBrownGray) 95%)", width: "48vw", height: "4vh"}}></div>
 										</div>
 									</div>
-									
-									
-									
-									
-								
+
+
+
+
+
 							</div>
 							<div id = {actions[3]} style = {{visibility: "collapse", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "right ", top:"-180vh", opacity: "0", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
-								
-								
-								
+
+
+
 								{ !log_type ? (
 									<div style= {{paddingLeft: "2vw", paddingTop: "3vh", position: "absolute", width: "96.5%"}} >
 											<div style={{display:"inline-flex", marginBottom: "0.8vh"}}>
@@ -639,7 +639,7 @@ export default function MainComponent(props) {
 											</div>
 											<div style={{overflow: "hidden", display: "inline-flex", background:"transparent",  width: "100%", height: "45vh",padding: "2vh 0vw", border: "2px solid var(--colorShadowBrownGray)", boxShadow: "inset 0vh 0vh 0.5vh 0.4vh var(--colorBrownGray)"}}>
 												<div className={"shadow_top"} style={{zIndex: "5", opacity: "0", position: "absolute", marginLeft: "1.4vw", marginTop: "-2vh", display: "flex", dlexDirection: "reverse-collumn", background: "linear-gradient(var(--colorBrownGray) 6%,  transparent 70%)", width: "48vw", height: "4vh"}}></div>
-												<div  id = {"LogsMenu"} className = {"SelectMenu"} style={{position: "relative", top: "0vh", width: "95%", height: "47vh",}}>	
+												<div  id = {"LogsMenu"} className = {"SelectMenu"} style={{position: "relative", top: "0vh", width: "95%", height: "47vh",}}>
 													{LogsFilter.map((el) => (
 														<div onClick={() => {LogChange(el)}} className={"item"} style={{fontSize: "1.8vh", display: "grid", gridTemplateColumns: '2vw 6vw 6vw 1.5vw 9vw', margin: "0.5vh 1.5vw", padding: "0.8vh", width: "100%", alignItems: "center"}} key={el} value={el}>
 															<div>{el[0] + "."}</div>
@@ -647,7 +647,7 @@ export default function MainComponent(props) {
 															<div>{el[1][1].slice(el[1][1].lastIndexOf('/')+1, -13) }</div>
 															<div>/</div>
 															<div>{el[1][1].slice(-12, -4)}</div>
-															
+
 														</div>
 														))}
 													{LogsFilter.length == 0 &&
@@ -655,17 +655,17 @@ export default function MainComponent(props) {
 															There are no logs
 														</div>
 													}
-														
+
 												</div>
 												{LogsFilter.length != 0 &&
 													<div onMouseMove= {() => {MouseMove()}} onMouseLeave=  {() => {setMouse("up")}} className={"lazer" } style={{height: "40vh", width: "8%",  display: "flex", flexDirection: "row-reverse", overflow: "hidden", marginLeft: "1.1vw", }}>
 														<div style={{border: "2px solid var(--colorShadowBrownGray)", background: "#8b8479", height: "40vh", width: "40%",position: "relative", }} >
-															<div 
+															<div
 																onMouseDown= {() => {setMouse("down")}}
 																onMouseUp= {() => {setMouse("up")}}
 																className={"lazer_child"}
 																style={{position: "absolute", top:"0px", boxShadow: "-0.1vh 0.1vh 0.1vh 0vh var(--colorBrownGray)", border: "2px solid var(--colorShadowBrownGray)", background: "white",  width: "100%", height: "5vh", position: "relative"}}>
-																
+
 																<div style={{ background: "var(--colorShadowBrownGray)", height: "3px", width: "100%", position: "relative", top: "30%"}}></div>
 																<div style={{ background: "var(--colorShadowBrownGray)", height: "3px", width: "100%", position: "relative", top: "50%"}}></div>
 															</div>
@@ -685,24 +685,24 @@ export default function MainComponent(props) {
 											</div>
 										</div>
 										<div style={{border: "3px solid var(--colorShadowBrownGray)", boxShadow: "-0.9vh 0.4vh 0.5vh 0.1vh var(--colorBrownGray)", width: "100%", height: "90%", }}>
-											<Editor 
+											<Editor
 												options={{
 													fontSize: "13vh",
 													wordWrap: "on",
 												}}
 												theme="vs-dark"
-												height="100%" 
+												height="100%"
 												width="100%"
 												defaultLanguage="plaintext"
 												value={code} />
 										</div>
 									</div>
 								)}
-							
-							
-							
-									
-								
+
+
+
+
+
 							</div>
 						</div>
 					</div>

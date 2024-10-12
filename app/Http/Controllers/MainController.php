@@ -32,29 +32,29 @@ class MainController extends Controller
 				if ($host->local == Cache::store('database')->get('local')) {
 					if  (Cache::store('database')->get('right') == "none"){
 						if ($host->global == 'true') {
-							$selected_hosts[$host->name] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login, 
-								'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,  
+							$selected_hosts[$host->name] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login,
+								'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,
 								'created_by'=>$host->created_by, 'created_at'=>$host->created_at, 'updated_at'=>$host->updated_at];
 						}
-					} else { 
-						$selected_hosts[$host->name] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login, 
-							'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,  
+					} else {
+						$selected_hosts[$host->name] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login,
+							'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,
 							'created_by'=>$host->created_by, 'created_at'=>$host->created_at, 'updated_at'=>$host->updated_at];}
 				} else if ($host->local == 'none' and $host->created_by == $user) {
-					$selected_hosts[$host->name] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login, 
-						'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,  
+					$selected_hosts[$host->name] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login,
+						'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,
 						'created_by'=>$host->created_by, 'created_at'=>$host->created_at, 'updated_at'=>$host->updated_at];
 				}
-			} else if ($host->created_by == $user){ 
-				$selected_hosts[$host->name] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login, 
-					'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,  
+			} else if ($host->created_by == $user){
+				$selected_hosts[$host->name] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login,
+					'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,
 					'created_by'=>$host->created_by, 'created_at'=>$host->created_at, 'updated_at'=>$host->updated_at];
 			}
 		}
 		Cache::store('database')->put('selected_hosts', $selected_hosts, 1800);
-		
+
 	}
-	
+
 	public function SelectedRoles_update() {
 		$roles = new role();
 		$selected_roles = array();
@@ -74,17 +74,25 @@ class MainController extends Controller
 	public function SelectedLocals_update() {
 		$selected_locals = array();
 		$get_user = Cache::store('database')->get('user');
-		
-		$fileUser = json_decode(json: (File::get( base_path("storage/app/private/users/{$get_user}/locals.json"))), associative: true);
-		if (gettype($fileUser)!= gettype(NULL)){
-			foreach (array_keys($fileUser) as $local) {
-				$selected_locals[$local] = ['name'=>$local, 'right'=>$fileUser[$local]];
-			}
-		}
-		
+		if ($get_user != "none") {
+            $fileUser = json_decode(json: (File::get( base_path("storage/app/private/users/{$get_user}/locals.json"))), associative: true);
+            if (gettype($fileUser)!= gettype(NULL)){
+                foreach (array_keys($fileUser) as $local) {
+                    $members=array();
+                    if ($fileUser[$local]=="admin") {
+                        $fileLocal = json_decode(json: (File::get( base_path("storage/app/private/locals/{$local}.json"))), associative: true);
+                        foreach (array_keys($fileLocal) as $username) {
+                            $members[$username]=$fileLocal[$username];
+                        }
+                    }
+                    $pass = DB::table('locals')->where('name', $local)->first()->password;
+                    $selected_locals[$local] = ['Name'=>$local, 'Right'=>$fileUser[$local], 'members' => $members, 'password'=> $pass, 'Count-of-members' =>count($members)];
+                }
+            }
+        }
 		Cache::store('database')->put('selected_locals', $selected_locals, 1800);
 	}
-   
+
    public function MainPage() {
 		if (Cache::store('database')->get('user') == null){
 			Cache::store('database')->put('user', Cookie::get('user', 'none'), 1800);
@@ -96,40 +104,44 @@ class MainController extends Controller
 			$this->SelectedHosts_update();
 			$this->SelectedRoles_update();
 		}
-		return Inertia::render('Project/MainPage'); 
+		return Inertia::render('Project/MainPage');
 	}
-	
+
 	public function hosts() {
-		if (Cache::store('database')->get('local') != "none" and (Cache::store('database')->get('right') == "read" or Cache::store('database')->get('right') == "none")) {
-			return Inertia::render('Project/block', ['print' => 'Недостаточно прав']);
-		} else {
-			$this->SelectedHosts_update();
-			return Inertia::render('Project/hosts',  ['hosts' => Cache::store('database')->get('selected_hosts')]);
-		}
+        $this->SelectedHosts_update();
+        $this->SelectedLocals_update();
+        $new_locals = array();
+        foreach (Cache::store('database')->get('selected_locals') as $local) {
+            if ($local['Right'] == "admin" or $local['Right'] == "write") {
+                array_push($new_locals,$local['Name']);
+            }
+        }
+        return Inertia::render('Project/hosts',  ['hosts' => Cache::store('database')->get('selected_hosts'), 'locals'=>$new_locals]);
 	}
 	public function save_hosts(Request $request) {
-		$host = new host();
-		$data = array(
-			'name' => $request->input('name'),
-			'ip' => $request->input('ip'),
-			'login' => $request->input('login'),
-			'password' => $request->input('password'),
-			'group' => $request->group,
-			'local' => Cache::store('database')->get('local'),
-			'global' => $request->input('global_'),
-			'created_by' => Cache::store('database')->get('user'),
-		);
-		$host->create($data);
-		$this->SelectedHosts_update();
+        foreach ($request->new_locals as $local) {
+            $host = new host();
+            $data = array(
+                'name' => $request->input('name'),
+                'ip' => $request->input('ip'),
+                'login' => $request->input('login'),
+                'password' => $request->input('password'),
+                'group' => $request->group,
+                'local' => $local,
+                'global' => $request->input('global_'),
+                'created_by' => Cache::store('database')->get('user'),
+            );
+            $host->create($data);
+        }
 		return redirect()->back();
-	}	
+	}
 	public function hosts_edit(Request $request) {
 		DB::table('hosts')->where('id', $request->id)->update(array(
 				'name'=>$request->name,
-				"ip"=>$request->ip, 
-				"login"=>$request->login, 
-				'password'=>$request->password, 
-				'group'=>$request->group, 
+				"ip"=>$request->ip,
+				"login"=>$request->login,
+				'password'=>$request->password,
+				'group'=>$request->group,
 				'global'=>$request->global_));
 		return redirect()->back();
 	}
@@ -137,12 +149,12 @@ class MainController extends Controller
 		DB::table('hosts')->where('id', $request->id)->delete();
 		return redirect()->back();
 	}
-	
+
 	public function roles() {
 		if (Cache::store('database')->get('local') != "none" and (Cache::store('database')->get('right') == "read" or Cache::store('database')->get('right') == "none"))  {
 			return Inertia::render('Project/block', ['print' => 'Недостаточно прав']);
 		} else {
-			
+
 			$user = Cache::store('database')->get('user');
 			$roles = new role();
 			$selected_roles = array();
@@ -164,21 +176,31 @@ class MainController extends Controller
 				$code = Storage::disk('local')->get("/ansible/roles/{$role->name}/tasks/main.yml");
 				$codes[$role->id] = $code;
 			}
-			return Inertia::render('Project/roles', [ 'roles'=>$selected_roles, 'codes' => $codes]);
+			$this->SelectedLocals_update();
+            $new_locals = array();
+            foreach (Cache::store('database')->get('selected_locals') as $local) {
+                if ($local['Right'] == "admin" or $local['Right'] == "write") {
+                    array_push($new_locals,$local['Name']);
+                }
+            }
+			return Inertia::render('Project/roles', [ 'roles'=>$selected_roles, 'codes' => $codes, 'locals' => $new_locals]);
 		}
 	}
 	public function save_roles(Request $request) {
+        dd($request->id);
 		$role = new role();
-		$role->create(array('global' => $request->global_, 'name' => $request->name, 'group' => $request->group, 
-			'local' => Cache::store('database')->get('local'), 'created_by' => Cache::store('database')->get('user')));
-		if ($request->type =="file") {
-			$request->file('task')->storeAs(path: "/ansible/roles/{$request->name}/tasks/", name: 'main.yml');
-		} else {
-			Storage::disk('local')->put("/ansible/roles/{$request->name}/tasks/main.yml", "{$request->code}");
-		}
+        foreach ($request->new_locals as $local) {
+            $role->create(array('global' => $request->global_, 'name' => $request->name, 'group' => $request->group,
+                'local' => $local, 'created_by' => Cache::store('database')->get('user')));
+            if ($request->type =="file") {
+                $request->file('task')->storeAs(path: "/ansible/roles/{$request->name}/tasks/", name: 'main.yml');
+            } else {
+                Storage::disk('local')->put("/ansible/roles/{$request->name}/tasks/main.yml", "{$request->code}");
+            }
+        }
 		return;
 	}
-	
+
 	public function roles_edit(Request $request) {
 		$role = DB::table('roles')->where('id', $request->id)->first();
 		if ($request->type == "file" and $request->file('task') != null) {
@@ -195,7 +217,7 @@ class MainController extends Controller
 		DB::table('roles')->where('id', $request->id)->update(array('name'=>$request->name, 'group'=>$request->group, 'global'=>$request->global_));
 		return;
 	}
-	
+
 	public function roles_delete(Request $request) {
 		$role = DB::table('roles')->where('id', $request->id)->first();
 		Storage::disk('local')->delete("/ansible/roles/{$role->name}/tasks/main.yml");
@@ -204,7 +226,7 @@ class MainController extends Controller
 		DB::table('roles')->where('id', $request->id)->delete();
 		return;
 	}
-	
+
 	public function play() {
 		$user = Cache::store('database')->get('user');
 		$hosts = new host();
@@ -237,21 +259,21 @@ class MainController extends Controller
 				}
 			} else if ($role->created_by == $user){ array_push($selected_roles,$role);}
 		}
-		
+
 		$logs = [];
 		foreach (Storage::files("/users/{$user}/logs") as $log) {
 				array_push($logs, [Storage::disk('local')->get($log), $log]);
 		}
 		return Inertia::render('Project/play', ['logs'=>$logs, 'roles' =>$selected_roles, 'hosts' => $selected_hosts]);
 	}
-	
+
 	public function play_launch(Request $request) {
 		Storage::disk('local')->put('/ansible/hosts', "");
 		foreach ($request->final_selectedHosts as $el) {
 			$host = DB::table('hosts')->where('id', $el)->first();
 			Storage::disk('local')->append('/ansible/hosts', "{$host->ip} ansible_connection=ssh ansible_ssh_user={$host->login} ansible_ssh_pass={$host->password}");
 		}
-		Storage::disk('local')->put('/ansible/first.yml', 
+		Storage::disk('local')->put('/ansible/first.yml',
 "- name: 'First step'
   hosts: all
   become: yes
@@ -261,51 +283,57 @@ class MainController extends Controller
 			Storage::disk('local')->append('/ansible/first.yml', "   - {$role->name}");
 		}
 		$result = Process::run('cd ../storage/app/ansible && ansible-playbook ./first.yml -i ./hosts ');
-		
+
 		$user = Cache::store('database')->get('user');
 		date_default_timezone_set('UTC');
 		$date = date('j-m-Y-h-i-s');
 		Storage::disk('local')->put("/users/{$user}/logs/{$date}.txt", "{$result->output()}");
 		return $result->output();
 	}
-	
+
 	public function local() {
-		/*$local = Cache::store('database')->get('local');
-		if (Cache::store('database')->get('local') != "none") {
-			$file = json_decode(json: (File::get( base_path("storage/app/locals/{$local}.json"))), associative: true);
-			if (Cache::store('database')->get('right') != null) {
-				Cache::store('database')->put('right', $file[Cache::store('database')->get('user')], 1800);
-			} 
-			if (Cache::store('database')->get('right') == "admin")  {
-				$actors = array();
-				$file = json_decode(json: (File::get( base_path("storage/app/locals/{$local}.json"))), associative: true);
-				$local = DB::table('locals')->where('name', Cache::store('database')->get('local'))->first();
-				foreach (array_keys($file) as $actor) {
-					$actors[$actor] = $file[$actor];
-				}
-				return Inertia::render('Project/local_edit', ['local' =>$local, "actors"=>$actors, 'roles' =>Cache::store('database')->get('selected_roles'), 'hosts' => Cache::store('database')->get('selected_hosts'),] ); 
-			}
-		} else  {
-			return Inertia::render('Project/local_create',  ['hosts' => Cache::store('database')->get('selected_hosts')] ); 
-		}*/
-		
 		$this->SelectedLocals_update();
-		return Inertia::render('Project/local_create',  ['locals' => Cache::store('database')->get('selected_locals')] ); 
+		return Inertia::render('Project/local_create',  ['locals' => Cache::store('database')->get('selected_locals')] );
 	}
-	
-	public function local_exit() {
-		DB::table('myusers')->where('login', Cache::store('database')->get('user'))->update(array('local'=>"none"));
-		Cache::store('database')->put('local', "none", 1800);
-		return redirect('/local');
+
+	public function local_exit(Request $request) {
+		$get_user = Cache::store('database')->get('user');
+		$fileUser = json_decode(json: (File::get( base_path("storage/app/private/users/{$get_user}/locals.json"))), associative: true);
+        unset($fileUser[DB::table('locals')->where('name', $request->name_post)->first()->name]);
+        Storage::disk('local')->put("/users/{$get_user}/locals.json", json_encode($fileUser));
+		return redirect()->back();
 	}
+	public function local_delete(Request $request) {
+		$get_user = Cache::store('database')->get('user');
+		$fileUser = json_decode(json: (File::get( base_path("storage/app/private/users/{$get_user}/locals.json"))), associative: true);
+        unset($fileUser[DB::table('locals')->where('name', $request->name_post)->first()->name]);
+        Storage::disk('local')->put("/users/{$get_user}/locals.json", json_encode($fileUser));
+        Storage::disk('local')->delete("/locals/{$request->name_post}.json");
+        DB::table('locals')->where('name', $request->name_post)->delete();
+		return redirect()->back();
+	}
+	public function local_edit(Request $request) {
+        if ($request->name_post != $request->name) {
+            Storage::disk('local')->move("locals/{$request->name_post}.json", "locals/{$request->name}.json");
+            $get_user = Cache::store('database')->get('user');
+            $fileUser = json_decode(json: (File::get( base_path("storage/app/private/users/{$get_user}/locals.json"))), associative: true);
+            $fileUser[$request->name]=$fileUser[$request->name_post];
+            unset($fileUser[$request->name_post]);
+            Storage::disk('local')->put("/users/{$get_user}/locals.json", json_encode($fileUser));
+            DB::table('locals')->where('name', $request->name_post)->update(array('name'=>$request->name));
+        }
+        DB::table('locals')->where('name', $request->name_post)->update(array('password'=>$request->password));
+        return redirect()->back();
+	}
+
 	public function local_login(Request $request) {
 		$local = DB::table('locals')->where('name', $request->name)->first();
 		$get_user = Cache::store('database')->get('user');
 		$user = DB::table('myusers')->where('login', $get_user);
 		if ($local != null) {
 			if ($local->password == $request->password){
-				$fileUser = json_decode(json: (File::get( base_path("storage/app/users/{$get_user}/locals.json"))), associative: true);
-				$fileLocal = json_decode(json: (File::get( base_path("storage/app/locals/{$local->name}.json"))), associative: true);
+				$fileUser = json_decode(json: (File::get( base_path("storage/app/private/users/{$get_user}/locals.json"))), associative: true);
+				$fileLocal = json_decode(json: (File::get( base_path("storage/app/private/locals/{$local->name}.json"))), associative: true);
 				if (array_key_exists($get_user, $fileLocal)) {
 					$fileUser[$request->name] = $fileLocal[$get_user];
 				} else {
@@ -317,7 +345,7 @@ class MainController extends Controller
 			}
 		}
 		$this->SelectedLocals_update();
-		return redirect('/local');
+		return redirect()->back();
 	}
 	public function local_create(Request $request) {
 		$local = new local();
@@ -331,70 +359,36 @@ class MainController extends Controller
 			Cache::store('database')->get('user') => 'admin',
 		);
 		Storage::disk('local')->put("/locals/{$request->input('nameNew')}.json", json_encode($file));
-		
+
 		$get_user = Cache::store('database')->get('user');
 		$fileUser = json_decode(json: (File::get( base_path("storage/app/private/users/{$get_user}/locals.json"))), associative: true);
 		$get_user = Cache::store('database')->get('user');
 		$fileUser[$request->nameNew] = "admin";
 		Storage::disk('local')->put("/users/{$get_user}/locals.json", json_encode($fileUser));
-		
-		
-		$this->SelectedLocals_update();
-		return redirect('/local');
+
+		return redirect()->back();
 	}
-	public function local_edit(Request $request) {
-		$local = DB::table('locals')->where('id', $request->id);
-		if (!   (DB::table('locals')->where('name', $request->name)-> first() != null and $request->name != $local->first()->name)  ) {
-					foreach ((DB::table('myusers')->where('local', $local->first()->name) ->get()) as $item) {
-						DB::table('myusers')->where('id', $item->id)->update(array('local'=>($request->name)));
-					}
-					foreach ((DB::table('hosts')->where('local', $local->first()->name) ->get()) as $item) {
-						DB::table('hosts')->where('id', $item->id)->update(array('local'=>($request->name)));
-					}
-					foreach ((DB::table('roles')->where('local', $local->first()->name) ->get()) as $item) {
-						DB::table('roles')->where('id', $item->id)->update(array('local'=>($request->name)));
-					}
-			Storage::move("/locals/{$local->first()->name}.json/", "/locals/{$request->name}.json/");
-			$local->update(array('name'=>($request->name), 'password'=>($request->password)));
-			Cache::store('database')->put('local', $request->name, 1800);
-			return back()->withErrors(['result'=> 'successful']);
-		} else {
-			return back()->withErrors(['result'=> 'error']);
-		}
-	}
-	
-	public function local_delete(Request $request) {
-		$local = DB::table('locals')->where('id', $request->id);
-			foreach ((DB::table('hosts')->where('local', $local->first()->name) ->get()) as $item) {
-				DB::table('hosts')->where('id', $item->id)->delete();
-			}
-			foreach ((DB::table('roles')->where('local', $local->first()->name) ->get()) as $item) {
-				DB::table('roles')->where('id', $item->id)->delete();
-			}
-		Storage::delete("/locals/{$local->first()->name}.json/");
-		DB::table('locals')->where('id', $request->id)->delete();
-		
-		DB::table('myusers')->where('login', Cache::store('database')->get('user'))->update(array('local'=>"none"));
-		Cache::store('database')->put('local', "none", 1800);
-		return redirect('/local');
-	}
+
+
 	public function local_members(Request $request) {
-		$local = DB::table('locals')->where('id', $request->id)->first();
-		$file =  array();
-		foreach ($request->actors as $item) {
-		   $file[$item[0]] = $item[1];
-		}
-		Storage::disk('local')->put("/locals/{$local->name}.json", json_encode($file));
-	}
-	
-	
-	
+        $get_user = Cache::store('database')->get('user');
+        if ($request->members[$get_user] != Cache::store('database')->get('right')) {
+            $fileUser = json_decode(json: (File::get( base_path("storage/app/private/users/{$get_user}/locals.json"))), associative: true);
+            $fileUser[$request->name_post]=$request->members[$get_user];
+            Storage::disk('local')->put("/users/{$get_user}/locals.json", json_encode($fileUser));
+        }
+        Storage::disk('local')->put("/locals/{$request->name_post}.json", json_encode($request->members));
+        return redirect()->back();
+    }
+
+
+
 	public function user() {
 		if (Cache::store('database')->get('user') == "none") {
-			return Inertia::render('Project/user_login', ['user' =>Cache::store('database')->get('user'), 'local' =>Cache::store('database')->get('local')] ); 
-		} else { 
+			return Inertia::render('Project/user_login', ['user' =>Cache::store('database')->get('user'), 'local' =>Cache::store('database')->get('local')] );
+		} else {
 			$user = DB::table('myusers')->where('login', Cache::store('database')->get('user'))->first();
-			return Inertia::render('Project/user_edit', ['user' =>Cache::store('database')->get('user'), 'local' =>Cache::store('database')->get('local'), 'db_user'=>$user] ); 
+			return Inertia::render('Project/user_edit', ['user' =>Cache::store('database')->get('user'), 'local' =>Cache::store('database')->get('local'), 'db_user'=>$user] );
 		}
 	}
 	public function user_exit() {
@@ -418,11 +412,11 @@ class MainController extends Controller
 					$file = json_decode(json: (File::get( base_path("storage/app/locals/{$user->local}.json"))), associative: true);
 					if (array_key_exists ($user->login, $file)){
 						Cache::store('database')->put('right', $file[$user->login], 1800);
-					} else { 
+					} else {
 						Cache::store('database')->put('right', "read", 1800);
 					}
 				}
-				return Inertia::render('Project/user_edit', ['user' =>Cache::store('database')->get('user'), 'local' =>Cache::store('database')->get('local'), 'db_user'=>$user] ); 
+				return Inertia::render('Project/user_edit', ['user' =>Cache::store('database')->get('user'), 'local' =>Cache::store('database')->get('local'), 'db_user'=>$user] );
 			}
 		}
 	}
@@ -453,7 +447,7 @@ class MainController extends Controller
 					DB::table('locals')->where('id', $local->id)->update(array('admin'=>$request->login));
 				}
 			}
-			
+
 		DB::table('myusers')->where('login', Cache::store('database')->get('user'))->update(array('login'=>$request->login, 'password'=>$request->password, 'email'=>$request->email));
 		Cache::store('database')->put('user', $request->login, 1800);
 		return;
@@ -461,9 +455,9 @@ class MainController extends Controller
 	public function user_delete(Request $request) {
 		return redirect('/');
 	}
-	
-	
-	
+
+
+
 	public function Primary() {
 		return Inertia::render('Project/Primary');
 	}
@@ -476,9 +470,9 @@ class MainController extends Controller
 		$post->create($data);
 		return redirect('/');
 	}
-	
-	
-	
+
+
+
 	public function Net() {
 		$posts = new ContactModel();
 		return view('Net', ['posts' => $posts->all()]);

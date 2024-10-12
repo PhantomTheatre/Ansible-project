@@ -12,23 +12,23 @@ export default function Roles(props) {
 	const actions = ["create", "edit", "code"];
 	const [type, setType] = useState("create");
 	const [selected_type, setSelected_type] = useState(type);
-	
+
 	const [name, setName] = useState("");
 	const [group, setGroup] = useState("");
-	const [task, setTask] = useState(""); 
-	const [global_, setGlobal] = useState(false); 
-	const [typeFile, setTypeFile] = useState("file"); 
-	const [code, setCode] = useState("// some comment");	
-	const [id, setId] = useState(""); 
-	const [group_on, setGroup_on] = useState(false); 
-	
-	
+	const [task, setTask] = useState("");
+	const [global_, setGlobal] = useState(false);
+	const [typeFile, setTypeFile] = useState("file");
+	const [code, setCode] = useState("// some comment");
+	const [id, setId] = useState("");
+	const [group_on, setGroup_on] = useState(false);
+
+
 	const [role, setRole] = useState("");
 	const [Roles, setRoles] = useState("");
-	
+
 	const [errors, setErrors] = useState([]);
 	const [selected_error, setSelected_error] = useState("");
-	
+
 	const GetRole = (el) =>{
 		setRole(el);
 		setName(el.name);
@@ -44,7 +44,7 @@ export default function Roles(props) {
 			setGroup_on(true)
 		} else{setGroup_on(false)}
 	};
-			
+
 	const Reset = () => {
 				setRole("");
 				setName("");
@@ -58,10 +58,10 @@ export default function Roles(props) {
 				setSelected_error("");
 				setErrors([]);
 	};
-	
+
 	let self_object = useRef(null);
 	self_object.rotation=5;
-	
+
 	const Change = () => {
 		clearInterval(self_object.change_flow);
 		document.getElementById(type).style.visibility = "visible";
@@ -103,7 +103,14 @@ export default function Roles(props) {
 				const formData = new FormData();
 				formData.append('file', task);
 				setTask(formData);
-				router.post("/roles/save", {name, group, task, type, code, global_}, {forceFormData: true,});
+
+                let new_locals=[]
+                document.querySelectorAll(".m-selectorS").forEach((el) => {
+                    new_locals.push(el.getAttribute('data'))
+                    el.classList.toggle("m-selectorS")
+                })
+
+				router.post("/roles/save", {name, group, task, type, code, global_, new_locals}, {forceFormData: true,});
 				let new_name=name;
 				Reset()
 				setErrors(['success', 'Success create', new_name]);
@@ -120,7 +127,11 @@ export default function Roles(props) {
 			}
 		}
 	};
-	
+
+    const ChangeLocals = (el) =>{
+        el.currentTarget.classList.toggle("m-selectorS")
+    };
+
 	useEffect(() => {
 		if (type != selected_type) {
 			Change();
@@ -134,7 +145,7 @@ export default function Roles(props) {
 			reader.onload = () => {setCode(reader.result)};
 		}
 	}, [task]);
-	
+
 	useEffect(() => {
 		if (typeFile == "file" || (typeFile == "write" && type == "create")) {
 			setCode("// some comment" );
@@ -145,31 +156,31 @@ export default function Roles(props) {
 					setCode(props.codes[el.id]);
 					setTask(task);
 				};
-			}); 
+			});
 		}
 	}, [typeFile]);
-	
+
 	useEffect(() => {
 		if (!group_on) { setGroup("none")}
 		else if (type=="create") {setGroup("")}
 		else if (type=="edit" && role['group'] != "none") {setGroup(role['group'])}
 		else if (type=="edit" && role['group'] == "none") {setGroup("")}
 	}, [group_on]);
-	
+
 	useEffect(() => {
 		setRoles(Object.entries(props.roles));
 	}, [props]);
-	
+
 	return (
 		<Global.Provider value = {{user : props.auth.user, local : props.auth.local}}>
 			<div>
-				<Page_theme page={"Roles"} actions={actions} type = {type} setType={setType}/>
+				<Page_theme page={"Roles"} actions={actions} type = {type} setType={setType} indent={"43"}/>
 				<div  style = {{ position: "absolute", marginLeft:"11vw", marginTop:"2vh", height: "67vh", width: "85vw", background: "var(--colorBrownGray)", borderRadius: "5% 5% 5% 20%", boxShadow: "-2vw 2.5vh 10px 1px var(--colorShadowBackground)"}}>
 					<div style = {{ overflow: "hidden", position: "relative", marginLeft:"2vw", marginTop:"3vh", height: "63vh", width: "81vw", display:"grid", gridTemplateColumns: "20vw 60vw"}}>
 						<div style = {{marginLeft: "2vw", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", position: "relative", background: "var(--colorLightGray)", height: "47vh"}}>
-							
-							
-							
+
+
+
 							<div  style = {{margin:"2vh", fontSize: "2vh"}}>
 								<p style = {{display: "flex", justifyContent: "center", fontSize: "3vh"}}>Log panel:</p>
 								<div  style = {{marginLeft:"0.5vw", marginTop: "0.5vh"}}>
@@ -201,11 +212,11 @@ export default function Roles(props) {
 													<div style={{marginLeft: "1vw"}}>
 														{(role == "" && task != "" && typeFile== "file")  ? (
 															<div><p > Edit loaded file </p> <p style={{marginLeft: "1vw"}}> from /create/ tab</p></div>
-														) : (role == "" && task == "" && typeFile== "write")  ? ( 
+														) : (role == "" && task == "" && typeFile== "write")  ? (
 															<div><p > Write new role </p> <p style={{marginLeft: "1vw"}}> from /create/ tab</p></div>
-														) : (role != "" && task != "" && typeFile== "file")  ? ( 
+														) : (role != "" && task != "" && typeFile== "file")  ? (
 															<div><p > Edit loaded file </p> <p style={{marginLeft: "1vw"}}> from /edit/ tab</p></div>
-														) : (role != "" && task == "" && typeFile== "write")  ? ( 
+														) : (role != "" && task == "" && typeFile== "write")  ? (
 															<div><p > Edit your role </p> <p style={{marginLeft: "1vw"}}> from /edit/ tab</p></div>
 														) : (
 															<div><p>None</p></div>
@@ -226,7 +237,7 @@ export default function Roles(props) {
 													))}
 												</select>
 											</div>
-											{selected_error == "name_error" && 
+											{selected_error == "name_error" &&
 											<div>
 												<p> It's error in "name" input field:</p>
 												<p> - must consist of 3-15 signs</p>
@@ -236,14 +247,14 @@ export default function Roles(props) {
 												<p> - It hadn't content 2 consecutive spaces</p>
 											</div>
 											}
-											{selected_error == "file_error" && 
+											{selected_error == "file_error" &&
 											<div>
 												<p> It's error in "file" input field:</p>
 												<p> You have to add some file </p>
 												<p> or change type and write new </p>
 											</div>
 											}
-											{selected_error == "group_error" && 
+											{selected_error == "group_error" &&
 											<div>
 												<p> - must consist of 3-15 signs</p>
 												<p> It's error in "group" input field:</p>
@@ -254,7 +265,7 @@ export default function Roles(props) {
 											</div>
 											}
 										</div>
-									) : ( 
+									) : (
 										<div>
 										{errors[1] == 'success_create' ? (
 											<div style={{display: "flex", flexDirection: "column", alignItems: "center", marginLeft: "-0.5vw"}}>
@@ -276,20 +287,20 @@ export default function Roles(props) {
 									)}
 								</div>
 							</div>
-							
-							
-							
+
+
+
 						</div>
 						<div style = {{marginLeft: "3vw"}}>
 							<div id = {actions[0]} style = {{borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "left ", opacity: "1", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
-							
+
 								<div style= {{marginLeft: "3vw", marginTop: "3vh", position: "absolute"}} >
 										<div style= {{display: "flex", flexDirection: "inline"}}>
 											<p style= {{fontSize: "3vh", marginRight: "1vw"}}>Create new role</p>
-												<input 
+												<input
 													className={"text_field"}
-													value={name} 
-													onChange={(e)=>setName(e.target.value)} 
+													value={name}
+													onChange={(e)=>setName(e.target.value)}
 													type="name" name="name" id="name" placeholder="Name"/>
 											<p style= {{fontSize: "3vh", marginLeft: "1vw"}}>:</p>
 											<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("name_error") ? ("visible") : ("collapse"), position: "absolute", width: "130%", height: "5vh", background: "red"}}></div>
@@ -303,14 +314,14 @@ export default function Roles(props) {
 														<option value="write">Write</option>
 													</select>
 												</div>
-												
+
 													{typeFile== "file"? (
 														<div style={{marginTop:"1vh", marginLeft: "2vw"}}>
 															<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("file_error") ? ("visible") : ("collapse"), position: "absolute", width: "77%", height: "7vh", background: "red"}}></div>
 															<input
 																accept={".yml"}
 																style={{ opacity: "0", width: "25vw", height:"4vh", position: "absolute", cursor: "pointer"}}
-																onChange={(e)=>setTask(e.target.files[0])} 
+																onChange={(e)=>setTask(e.target.files[0])}
 																type="file" name="task" id="task"/>
 															<div className={"select"} style={{marginTop: "2vh", background: "#e2e0de", height:"4vh", width: "25vw", display: "flex", alignItems: "center", justifyContent: "center"}}>
 																{ task == "" ?
@@ -326,17 +337,17 @@ export default function Roles(props) {
 															<p style= {{fontSize: "2vh"}}>Write your code in /code/ tab</p>
 														</div>
 													)}
-														
+
 												<div>
 													<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("group_error") ? ("visible") : ("collapse"), position: "absolute", width: "130%", height: "4vh", background: "red"}}></div>
 													<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"1vh"}}>Group:</p>
 													<div style= {{display: "flex", flexDirection: "inline", alignItems: "center"}}>
-														<input 
+														<input
 															disabled = {!group_on}
 															style= {{marginLeft: "1.5vw", marginTop:"0.5vh",width: "15vw"}}
 															className={"text_field"}
-															value={group} 
-															onChange={(e)=>setGroup(e.target.value)} 
+															value={group}
+															onChange={(e)=>setGroup(e.target.value)}
 															type="group" name="group" id="group" placeholder="Name of group"/>
 														<Button_check setValue={setGroup_on} value={group_on} label={"Add role to some group"}/>
 													</div>
@@ -345,28 +356,45 @@ export default function Roles(props) {
 													<Button_check setValue={setGlobal} value={global_} label={"Add global tag to this role"}/>
 												</div>
 												<div>
-													<button className={"button_submit"} style= {{marginTop: "3vh", marginLeft:"22vw"}} onClick={()=>{saveData()}}>Save role</button>
+													<button className={"button_submit"} style= {{width: "19vw", height: "5vh", fontSize: "3vh", marginTop: "6vh", marginLeft:"2vw"}} onClick={()=>{SaveData()}}>Create role</button>
 												</div>
 											</div>
 									</div>
+
+									<div style= {{width: "12vw", position:"absolute", fontSize: "2.3vh", marginLeft: "40vw", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "3vh 0vw", }}>
+                                        <div class = {"lineBig"}style = {{position: "absolute", width: "0.8vw",height:"43vh", margin:"15vh 12vw 0vh 0vw"}}></div>
+                                        <div style = {{position: "relative", width: "15vw", textAlign: "right", fontSize: "4vh"}}><b>Select locals</b></div>
+                                        <div style={{ marginLeft: "3vw", width: "10vw", overflowY: "scroll", padding: "0.4vh", borderRadius: "5px 5px 5px 5px", display: "flex", flexDirection: "column", alignItems: "center", background: "transparent", width: "100%", height: "23vh", boxShadow: "-0.2vw 0.2vh 3px 0px var(--colorShadowBrownGray)",   border:"solid 4px var(--colorShadowBrownGray)",}}>
+                                            <div class={"m-selector"} data = {"none"} onClick={(e)=>{ChangeLocals(e)}}>//User//</div>
+                                            <div style={{background: "black", width: "10vw", height: "2px"}}></div>
+                                            {props.locals.map((el) => (
+                                                <div key = {el} style={{display: "flex", flexDirection: "column", alignItems: "center", }}>
+                                                    <div class={"m-selector"} data = {el} onClick={(e)=>{ChangeLocals(e)}}>{el}</div>
+                                                    <div style={{background: "black", width: "10vw", height: "2px"}}></div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+
 							</div>
-							
+
 							<div id = {actions[1]} style = {{visibility: "collapse", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "right ", top:"-60vh", opacity: "0", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
-									
-									
-									
+
+
+
 									{role == "" &&
-										<Finder name_of_table={"Your roles"} 
-											objects={props.roles} 
-											cats={['name', 'local', 'created_by', 'group', 'global']} 
-											grid_columns={'2vw 7vw 11vw 11vw 8vw 5vw'} 
+										<Finder name_of_table={"Your roles"}
+											objects={props.roles}
+											cats={['name', 'local', 'created_by', 'group', 'global']}
+											grid_columns={'2vw 7vw 11vw 11vw 8vw 5vw'}
 											empty_label={"There are no roles"}
 											select_function={GetRole}/>
 									}
-										
-										
+
+
 									{role != "" &&
-									<div style= {{marginLeft: "2vw", marginTop: "3vh", position: "absolute"}} >	
+									<div style= {{marginLeft: "2vw", marginTop: "3vh", position: "absolute"}} >
 										<div style= {{display: "flex", flexDirection: "inline", alignItems: "center"}}>
 											<p style= {{fontSize: "3vh", marginRight: "1vw"}}>Edit existing role  "{role['name']}" :</p>
 											<button className={"button_reset"} style= {{ marginLeft:"5vw"}} onClick= {()=>{Reset()}}>-> Back</button>
@@ -377,11 +405,11 @@ export default function Roles(props) {
 												<div>
 													<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("name_error") ? ("visible") : ("collapse"), position: "absolute", width: "130%", height: "4vh", background: "red"}}></div>
 													<p style= {{fontSize: "2.5vh", marginTop:"0.5vh"}}>Name:</p>
-													<input 
+													<input
 														style= {{fontSize: "2vh", marginLeft: "2vw"}}
 														className={"text_field"}
-														value={name} 
-														onChange={(e)=>setName(e.target.value)} 
+														value={name}
+														onChange={(e)=>setName(e.target.value)}
 														type="name" name="name" id="name" placeholder="Name"/>
 												</div>
 												<div style= {{display: "flex", flexDirection: "inline", alignItems: "center", width: "45vw"}}>
@@ -392,13 +420,13 @@ export default function Roles(props) {
 														<option value="write">Write</option>
 													</select>
 												</div>
-												
+
 													{typeFile== "file"? (
 														<div style={{marginTop:"1vh", marginLeft: "2vw"}}>
 															<input
 																accept={".yml"}
 																style={{ opacity: "0", width: "25vw", height:"4vh", position: "absolute", cursor: "pointer"}}
-																onChange={(e)=>setTask(e.target.files[0])} 
+																onChange={(e)=>setTask(e.target.files[0])}
 																type="file" name="task" id="task"/>
 															<div className={"select"} style={{marginTop: "0.5vh", background: "#e2e0de", height:"4vh", width: "25vw", display: "flex", alignItems: "center", justifyContent: "center"}}>
 																{ task == "" ?
@@ -414,17 +442,17 @@ export default function Roles(props) {
 															<p style= {{fontSize: "2vh"}}>Edit your code in /code/ tab</p>
 														</div>
 													)}
-														
+
 												<div>
 													<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("group_error") ? ("visible") : ("collapse"), position: "absolute", width: "130%", height: "4vh", background: "red"}}></div>
 													<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"0vh"}}>Group:</p>
 													<div style= {{display: "flex", flexDirection: "inline", alignItems: "center", width: "45vw"}}>
-														<input 
+														<input
 															disabled = {!group_on}
 															style= {{marginLeft: "1.5vw", marginTop:"0.5vh",width: "15vw"}}
 															className={"text_field"}
-															value={group} 
-															onChange={(e)=>setGroup(e.target.value)} 
+															value={group}
+															onChange={(e)=>setGroup(e.target.value)}
 															type="group" name="group" id="group" placeholder="Name of group"/>
 														<Button_check setValue={setGroup_on} value={group_on} label={"Add role to some group"}/>
 													</div>
@@ -440,23 +468,23 @@ export default function Roles(props) {
 											</div>
 
 											</div>
-											
-											
+
+
 										</div>
 								</div>}
-									
-									
+
+
 							</div>
 							<div id = {actions[2]} style = {{visibility: "collapse", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "right ", top:"-120vh", opacity: "0", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
 								<div style={{borderRadius: "5vh", padding: "3vh 2vw", width: "100%", height: "100%"}}>
 									<div style={{border: "3px solid var(--colorShadowBrownGray)", boxShadow: "-0.9vh 0.4vh 0.5vh 0.1vh var(--colorBrownGray)", width: "100%", height: "100%"}}>
 										{ !(typeFile == "file" && task== "") ? (
-										<Editor 
-											onChange={(value, event) => {setCode(value)}} 
+										<Editor
+											onChange={(value, event) => {setCode(value)}}
 											theme="vs-dark"
-											height="100%" 
+											height="100%"
 											width="100%"
-											defaultLanguage="yaml" defaultValue="// some comment" 
+											defaultLanguage="yaml" defaultValue="// some comment"
 											value={code}  />
 										) : (
 											<div style={{marginTop: "6vh", fontSize: "2.5vh", display: "flex", justifyContent: "center", alignItems: "center", background:"#8b8479",  width: "91%",  margin: "5vh 2.3vw", height: "15vh", border: "2px solid var(--colorShadowBrownGray)", boxShadow: " 0vh 0vh 0.5vh 0.4vh var(--colorBrownGray)"}}>
@@ -465,7 +493,7 @@ export default function Roles(props) {
 										)}
 									</div>
 								</div>
-							
+
 							</div>
 						</div>
 					</div>

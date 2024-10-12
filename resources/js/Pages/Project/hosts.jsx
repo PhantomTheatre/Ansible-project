@@ -11,24 +11,24 @@ export default function MainComponent(props) {
 	const actions = ["create", "edit"];
 	const [type, setType] = useState("create");
 	const [selected_type, setSelected_type] = useState(type);
-	
+
 	const [name, setName] = useState("");
 	const [ip, setIp] = useState("");
 	const [login, setLogin] = useState("");
 	const [password, setPassword] = useState("");
 	const [group, setGroup] = useState("");
-	const [global_, setGlobal] = useState(false); 
-	const [id, setId] = useState(""); 
-	
+	const [global_, setGlobal] = useState(false);
+	const [id, setId] = useState("");
+
 	const [host, setHost] = useState("");
 	const [Hosts, setHosts] = useState(Object.entries(props.hosts));
-	const [group_on, setGroup_on] = useState(false); 
-	
+	const [group_on, setGroup_on] = useState(false);
+
 	const [errors, setErrors] = useState([]);
 	const [selected_error, setSelected_error] = useState("");
-	
+
 	const [shadows, setShadows] = useState(false);
-	
+
 	const GetHost = (el) =>{
 		setHost(el);
 		setName(el.name);
@@ -44,12 +44,16 @@ export default function MainComponent(props) {
 		setErrors("")
 		setSelected_error("")
 	};
-	
+
+    const ChangeLocals = (el) =>{
+        el.currentTarget.classList.toggle("m-selectorS")
+    };
+
 	let self_object = useRef(null);
 	self_object.rotation=5;
-	
-	
-	
+
+
+
 	const Change = () => {
 		clearInterval(self_object.change_flow);
 		document.getElementById(type).style.visibility = "visible";
@@ -74,18 +78,18 @@ export default function MainComponent(props) {
 			}
 		}, 10);
 	}
-	
+
 	useEffect(() => {
 		if (type != selected_type) { Change(); }
 	}, [type]);
-	
+
 	useEffect(() => {
 		if (!group_on) { setGroup("none")}
 		else if (type=="create") {setGroup("")}
 		else if (type=="edit" && host['group'] != "none") {setGroup(host['group'])}
 		else if (type=="edit" && host['group'] == "none") {setGroup("")}
 	}, [group_on]);
-	
+
 	const Reset = () => {
 		setName("");
 		setIp("");
@@ -97,16 +101,20 @@ export default function MainComponent(props) {
 		setHost("");
 		setErrors("");
 		setSelected_error("");
+        setSelectedLocals({none:false})
+        document.querySelectorAll(".m-selectorS").forEach((el) => {
+            el.classList.toggle("m-selectorS")
+        })
 	};
-	
-	
+
+
 	const Delete = () => {
 		router.post("/hosts/delete", { id });
 		let new_name=name;
 		Reset();
 		setErrors(['success', 'success_delete', new_name]);
 	};
-	const SaveData = () => { 
+	const SaveData = () => {
 		let new_errors = [];
 		let regex = /^((?!.*\s\s)[0-9a-z]([0-9a-z\s\-\_]{1,13})[0-9a-z])$/i  ;
 		if (!regex.test(name)) {new_errors.push("name_error")}
@@ -117,7 +125,12 @@ export default function MainComponent(props) {
 		if (!regex.test(login)) {new_errors.push("login_error")}
 		if (new_errors.length == 0) {
 			if (type=="create") {
-				router.post("/hosts/save", { name, ip, login, password, group, global_, group_on});
+				let new_locals=[]
+                document.querySelectorAll(".m-selectorS").forEach((el) => {
+                    new_locals.push(el.getAttribute('data'))
+                    el.classList.toggle("m-selectorS")
+                })
+                router.post("/hosts/save", { name, ip, login, password, group, global_, group_on, new_locals});
 				let new_name=name;
 				Reset();
 				setErrors(['success', 'Success create', new_name]);
@@ -134,23 +147,23 @@ export default function MainComponent(props) {
 			}
 		}
 	};
-	
+
 	useEffect(() => {
 		setHosts(Object.entries(props.hosts));
 	}, [props]);
-	
-	
+
+
 	return (
 		<Global.Provider value = {{user : props.auth.user, local : props.auth.local}}>
 			<div>
-				<Page_theme page={"Hosts"} actions={actions} type = {type} setType={setType}/>
+				<Page_theme page={"Hosts"} actions={actions} type = {type} setType={setType} indent={"50"}/>
 				<div  style = {{ position: "absolute", marginLeft:"11vw", marginTop:"2vh", height: "67vh", width: "85vw", background: "var(--colorBrownGray)", borderRadius: "5% 5% 5% 20%", boxShadow: "-2vw 2.5vh 10px 1px var(--colorShadowBackground)"}}>
 					<div style = {{ overflow: "hidden", position: "relative", marginLeft:"2vw", marginTop:"3vh", height: "63vh", width: "81vw", display:"grid", gridTemplateColumns: "20vw 60vw"}}>
 						<div style = {{marginLeft: "2vw", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", position: "relative", background: "var(--colorLightGray)", height: "47vh"}}>
-							
-							
-							
-							
+
+
+
+
 							<div  style = {{margin:"2vh", fontSize: "2vh"}}>
 								<p style = {{display: "flex", justifyContent: "center", fontSize: "3vh"}}>Log panel:</p>
 								<div  style = {{marginLeft:"0.5vw", marginTop: "0.5vh"}}>
@@ -188,7 +201,7 @@ export default function MainComponent(props) {
 													))}
 												</select>
 											</div>
-											{selected_error == "name_error" && 
+											{selected_error == "name_error" &&
 											<div>
 												<p> It's error in "name" input field:</p>
 												<p> - must consist of 3-15 signs</p>
@@ -198,20 +211,20 @@ export default function MainComponent(props) {
 												<p> - It hadn't content 2 consecutive spaces</p>
 											</div>
 											}
-											{selected_error == "ip_error" && 
+											{selected_error == "ip_error" &&
 											<div>
 												<p> It's error in "ip" input field:</p>
 												<p> Your written ip don't meets the standard</p>
 												<p> such us /192.0.2.1/</p>
 											</div>
 											}
-											{selected_error == "login_error" && 
+											{selected_error == "login_error" &&
 												<div>
 													<p> It's error in "login" input field:</p>
 													<p> Your written login contain invalid sign</p>
 												</div>
 											}
-											{selected_error == "group_error" && 
+											{selected_error == "group_error" &&
 											<div>
 												<p> - must consist of 3-15 signs</p>
 												<p> It's error in "group" input field:</p>
@@ -222,7 +235,7 @@ export default function MainComponent(props) {
 											</div>
 											}
 										</div>
-									) : ( 
+									) : (
 										<div style={{height: "20vh", margin: "1.5vh 0 0 -0.5vw", background: "var(--colorInfo)", border: "2px solid var(--colorShadowBrownGray)", boxShadow: " 0vh 0vh 0.5vh 0.4vh var(--colorBrownGray)"}}>
 											<div style={{display: "flex", flexDirection: "column", alignItems: "center", marginLeft: "-0.5vw"}}>
 												<p className={"stroke"} style={{fontSize: "3.5vh", color: "green", }}>{errors[1]}</p>
@@ -234,23 +247,23 @@ export default function MainComponent(props) {
 										</div>
 									)}
 								</div>
-							
-							
-							
+
+
+
 							</div>
 						</div>
 						<div style = {{marginLeft: "3vw"}}>
 							<div id = {actions[0]} style = {{borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "left ", opacity: "1", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
-							
-							
-							
+
+
+
 								<div style= {{marginLeft: "2vw", marginTop: "3vh", position: "absolute"}} >
 									<div style= {{display: "flex", flexDirection: "inline"}}>
-										<p style= {{fontSize: "3vh", marginRight: "1vw"}}>Create new host</p>
-											<input 
+										<b style= {{fontSize: "3vh", marginRight: "1vw"}}>Create new host</b>
+											<input
 												className={"text_field"}
-												value={name} 
-												onChange={(e)=>setName(e.target.value)} 
+												value={name}
+												onChange={(e)=>setName(e.target.value)}
 												type="name" name="name" id="name" placeholder="Name"/>
 										<p style= {{fontSize: "3vh", marginLeft: "1vw"}}>:</p>
 										<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("name_error") ? ("visible") : ("collapse"), position: "absolute", width: "130%", height: "5vh", background: "red"}}></div>
@@ -259,29 +272,29 @@ export default function MainComponent(props) {
 										<div>
 												<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"2vh"}}>Ip addres:</p>
 												<div style={{zIndex: "-1", opacity: "0.5", marginTop: "-3.5vh", marginLeft: "-0.5vw", visibility: errors.includes("ip_error") ? ("visible") : ("collapse"), position: "absolute", width: "49%", height: "3.5vh", background: "red"}}></div>
-												<input 
+												<input
 													className={"text_field"}
 													style= {{marginLeft: "1.5vw", width: "15vw"}}
-													value={ip} 
-													onChange={(e)=>setIp(e.target.value)} 
+													value={ip}
+													onChange={(e)=>setIp(e.target.value)}
 													type="ip" name="ip" id="ip" placeholder="Ip addres"/>
 										</div>
 										<div>
 												<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"0.5vh"}}>Сredentials:</p>
 												<div style={{zIndex: "-1", opacity: "0.5", marginTop: "-3.5vh", marginLeft: "-0.5vw", visibility: errors.includes("login_error") ? ("visible") : ("collapse"), position: "absolute", width: "49%", height: "3.5vh", background: "red"}}></div>
 												<div style= {{display: "flex", flexDirection: "inline"}}>
-													<input 
+													<input
 														className={"text_field"}
 														style= {{marginLeft: "1.5vw", width: "15vw"}}
-														value={login} 
-														onChange={(e)=>setLogin(e.target.value)} 
+														value={login}
+														onChange={(e)=>setLogin(e.target.value)}
 														type="login" name="login" id="login" placeholder="Login"/>
 													<p style= {{fontSize: "2.5vh", margin: "0 1vw "}}>/</p>
-													<input 
+													<input
 														className={"text_field password"}
 														style= {{ width: "15vw"}}
-														value={password} 
-														onChange={(e)=>setPassword(e.target.value)} 
+														value={password}
+														onChange={(e)=>setPassword(e.target.value)}
 														type="password" name="password" id="password" placeholder="Password"/>
 												</div>
 										</div>
@@ -289,12 +302,12 @@ export default function MainComponent(props) {
 												<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"3vh"}}>Group:</p>
 												<div style={{zIndex: "-1", opacity: "0.5", marginTop: "-3.5vh", marginLeft: "-0.5vw", visibility: errors.includes("group_error") ? ("visible") : ("collapse"), position: "absolute", width: "49%", height: "3.5vh", background: "red"}}></div>
 												<div style= {{display: "flex", flexDirection: "inline", alignItems: "center"}}>
-													<input 
+													<input
 														disabled = {!group_on}
 														style= {{marginLeft: "1.5vw", width: "15vw"}}
 														className={"text_field"}
-														value={group} 
-														onChange={(e)=>setGroup(e.target.value)} 
+														value={group}
+														onChange={(e)=>setGroup(e.target.value)}
 														type="group" name="group" id="group" placeholder="Name of group"/>
 													<Button_check setValue={setGroup_on} value={group_on} label={"Add host to some group"}/>
 												</div>
@@ -304,22 +317,39 @@ export default function MainComponent(props) {
 										</div>
 									</div>
 									<div>
-										<button className={"button_submit"} style= {{marginTop: "3vh", marginLeft:"22vw"}} onClick={()=>{SaveData()}}>Create host</button>
+										<button className={"button_submit"} style= {{width: "19vw", height: "5vh", fontSize: "3vh", marginTop: "6vh", marginLeft:"2vw"}} onClick={()=>{SaveData()}}>Create host</button>
 									</div>
 								</div>
+
+                                <div style= {{width: "12vw", position:"absolute", fontSize: "2.3vh", marginLeft: "40vw", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "3vh 0vw", }}>
+                                    <div class = {"lineBig"}style = {{position: "absolute", width: "0.8vw",height:"43vh", margin:"15vh 12vw 0vh 0vw"}}></div>
+                                    <div style = {{position: "relative", width: "15vw", textAlign: "right", fontSize: "4vh"}}><b>Select locals</b></div>
+                                    <div style={{ marginLeft: "3vw", width: "10vw", overflowY: "scroll", padding: "0.4vh", borderRadius: "5px 5px 5px 5px", display: "flex", flexDirection: "column", alignItems: "center", background: "transparent", width: "100%", height: "23vh", boxShadow: "-0.2vw 0.2vh 3px 0px var(--colorShadowBrownGray)",   border:"solid 4px var(--colorShadowBrownGray)",}}>
+                                        <div class={"m-selector"} data = {"none"} onClick={(e)=>{ChangeLocals(e)}}>//User//</div>
+                                        <div style={{background: "black", width: "10vw", height: "2px"}}></div>
+                                        {props.locals.map((el) => (
+                                            <div key = {el} style={{display: "flex", flexDirection: "column", alignItems: "center", }}>
+                                                <div class={"m-selector"} data = {el} onClick={(e)=>{ChangeLocals(e)}}>{el}</div>
+                                                <div style={{background: "black", width: "10vw", height: "2px"}}></div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+
 							</div>
 							<div id = {actions[1]} style = {{visibility: "collapse", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "right ", top:"-60vh", opacity: "0", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
-										
-								{host == "" &&	
-									<Finder name_of_table={"Your hosts"} 
-										objects={props.hosts} 
-										cats={['name', 'ip', 'local', 'group', 'global']} 
-										grid_columns={'2vw 9vw 8vw 9vw 9vw 5vw'} 
+
+								{host == "" &&
+									<Finder name_of_table={"Your hosts"}
+										objects={props.hosts}
+										cats={['name', 'ip', 'local', 'group', 'global']}
+										grid_columns={'2vw 9vw 8vw 9vw 9vw 5vw'}
 										empty_label={"There are no hosts"}
 										select_function={GetHost}/>
 								}
-								{host != "" &&	
-									<div style= {{marginLeft: "2vw", marginTop: "3vh", position: "absolute"}} >	
+								{host != "" &&
+									<div style= {{marginLeft: "2vw", marginTop: "3vh", position: "absolute"}} >
 										<div style= {{display: "flex", flexDirection: "inline", alignItems: "center"}}>
 											<p style= {{fontSize: "3vh", marginRight: "1vw"}}>Edit existing host  {host['name']} :</p>
 											<button className={"button_reset"} style= {{ marginLeft:"5vw"}} onClick= {()=>{Reset()}}>-> Back</button>
@@ -329,39 +359,39 @@ export default function MainComponent(props) {
 												<div>
 													<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("name_error") ? ("visible") : ("collapse"), position: "absolute", width: "55%", height: "4vh", background: "red"}}></div>
 													<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"0vh"}}>Name:</p>
-													<input 
+													<input
 														className={"text_field"}
 														style= {{marginLeft: "1.5vw", width: "15vw"}}
-														value={name} 
-														onChange={(e)=>setName(e.target.value)} 
+														value={name}
+														onChange={(e)=>setName(e.target.value)}
 														type="name" name="name" id="name_edit" placeholder="Name"/>
 												</div>
 												<div>
 														<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("ip_error") ? ("visible") : ("collapse"), position: "absolute", width: "55%", height: "4vh", background: "red"}}></div>
 														<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"0vh"}}>Ip addres:</p>
-														<input 
+														<input
 															className={"text_field"}
 															style= {{marginLeft: "1.5vw", width: "15vw"}}
-															value={ip} 
-															onChange={(e)=>setIp(e.target.value)} 
+															value={ip}
+															onChange={(e)=>setIp(e.target.value)}
 															type="ip" name="ip" id="ip_edit" placeholder="Ip addres"/>
 												</div>
 												<div>
 														<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("login_error") ? ("visible") : ("collapse"), position: "absolute", width: "55%", height: "4vh", background: "red"}}></div>
 														<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"0vh"}}>Сredentials:</p>
 														<div style= {{display: "flex", flexDirection: "inline"}}>
-															<input 
+															<input
 																className={"text_field"}
 																style= {{marginLeft: "1.5vw", width: "15vw"}}
-																value={login} 
-																onChange={(e)=>setLogin(e.target.value)} 
+																value={login}
+																onChange={(e)=>setLogin(e.target.value)}
 																type="login" name="login" id="login" placeholder="Login"/>
 															<p style= {{fontSize: "2.5vh", margin: "0 1vw "}}>/</p>
-															<input 
+															<input
 																className={"text_field password"}
 																style= {{ width: "15vw"}}
-																value={password} 
-																onChange={(e)=>setPassword(e.target.value)} 
+																value={password}
+																onChange={(e)=>setPassword(e.target.value)}
 																type="password" name="password" id="password_edit" placeholder="Password"/>
 														</div>
 												</div>
@@ -369,12 +399,12 @@ export default function MainComponent(props) {
 														<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("group_error") ? ("visible") : ("collapse"), position: "absolute", width: "55%", height: "4vh", background: "red"}}></div>
 														<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"0vh"}}>Group:</p>
 														<div style= {{display: "flex", flexDirection: "inline", alignItems: "center"}}>
-															<input 
+															<input
 																disabled = {!group_on}
 																style= {{marginLeft: "1.5vw", width: "15vw"}}
 																className={"text_field"}
-																value={group} 
-																onChange={(e)=>setGroup(e.target.value)} 
+																value={group}
+																onChange={(e)=>setGroup(e.target.value)}
 																type="group_edit" name="group_edit" id="group_edit" placeholder="Name of group"/>
 															<Button_check setValue={setGroup_on} value={group_on} label={"Add host to some group"}/>
 														</div>
@@ -391,8 +421,8 @@ export default function MainComponent(props) {
 										</div>
 									</div>
 								}
-								
-								
+
+
 							</div>
 						</div>
 					</div>

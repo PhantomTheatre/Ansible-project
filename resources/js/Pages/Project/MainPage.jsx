@@ -9,10 +9,10 @@ export default function MainComponent(props) {
 	const actions = ["About"];
 	const [type, setType] = useState("About");
 	const [selected_type, setSelected_type] = useState(type);
-	
+
 	let self_object = useRef(null);
 	self_object.rotation=5;
-	
+
 	const Change = () => {
 		clearInterval(self_object.change_flow);
 		document.getElementById(type).style.visibility = "visible";
@@ -36,8 +36,8 @@ export default function MainComponent(props) {
 			}
 		}, 10);
 	}
-	
-	
+
+
 	useEffect(() => {
 		if (type != selected_type) {
 			Change();
@@ -47,11 +47,11 @@ export default function MainComponent(props) {
 	return (
 		<Global.Provider value = {{user : props.auth.user, local : props.auth.local}}>
 			<div>
-				<Page_theme page={"Main"} actions={actions} type = {type} setType={setType}/>
+				<Page_theme page={"Main"} actions={actions} type = {type} setType={setType} indent={"56"}/>
 				<div  style = {{ position: "absolute", marginLeft:"11vw", marginTop:"2vh", height: "67vh", width: "85vw", background: "var(--colorBrownGray)", borderRadius: "5% 5% 5% 20%", boxShadow: "-2vw 2.5vh 10px 1px var(--colorShadowBackground)"}}>
 					<div style = {{ overflow: "hidden", position: "relative", marginLeft:"2vw", marginTop:"3vh", height: "63vh", width: "81vw", display:"grid", gridTemplateColumns: "20vw 60vw"}}>
 						<div style = {{marginLeft: "2vw", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", position: "relative", background: "var(--colorLightGray)", height: "45vh"}}>
-						
+
 						<div  style = {{margin:"2vh", fontSize: "2vh"}}>
 								<p style = {{display: "flex", justifyContent: "center", fontSize: "3vh"}}>Log panel:</p>
 								<div  style = {{marginLeft:"0.5vw", marginTop: "0.5vh"}}>
@@ -65,13 +65,13 @@ export default function MainComponent(props) {
 										</div>
 								</div>
 						</div>
-							
-							
-						
+
+
+
 						</div>
 						<div style = {{marginLeft: "3vw"}}>
 							<div id = {actions[0]} style = {{borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "left ", opacity: "1", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
-							
+
 							<div  style = {{ marginTop:"2vh", marginLeft:"3vh", position:"absolute", width:"100%"}}>
 								<p>Awz site </p>
 								<div  style = {{ fontSize:"2vh", marginTop:"0.5vh", marginLeft:"5vh", position:"absolute"}}>
@@ -80,7 +80,7 @@ export default function MainComponent(props) {
 									<p>Some Links </p>
 								</div>
 							</div>
-							
+
 							</div>
 						</div>
 					</div>

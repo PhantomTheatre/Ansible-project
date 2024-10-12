@@ -9,17 +9,17 @@ export default function MainComponent(props) {
 	const actions = ["login", "registration"];
 	const [type, setType] = useState(actions[0]);
 	const [selected_type, setSelected_type] = useState(type);
-	
+
 	const [login, setLogin] = useState("");
 	const [password, setPassword] = useState("");
 	const [email, setEmail] = useState("");
-	
+
 	const [errors, setErrors] = useState([]);
 	const [selected_error, setSelected_error] = useState("");
-	
+
 	let self_object = useRef(null);
 	self_object.rotation=5;
-	
+
 	const Change = () => {
 		clearInterval(self_object.change_flow);
 		document.getElementById(type).style.visibility = "visible";
@@ -44,21 +44,21 @@ export default function MainComponent(props) {
 			}
 		}, 10);
 	}
-	
+
 	const Reset = () => {
 		setLogin("")
 		setEmail("")
 		setPassword("")
 	}
-	
-	
+
+
 	useEffect(() => {
 		if (type != selected_type) {
 			Change();
 			console.log(document.getElementById(selected_type).style.transform);
 		}
 	}, [type]);
-	
+
 	const SaveData = () => {
 		let new_errors = [];
 		let regex = /^((?!.*\s\s)[0-9a-z]([0-9a-z\s\-\_]{1,13})[0-9a-z])$/i  ;
@@ -81,26 +81,26 @@ export default function MainComponent(props) {
 			}
 		}
 	};
-	
-	
+
+
 	const Login = () => {
 		router.post("/user/login", {login, password});
 	};
 	const Registration = () => {
 		router.post("/user/registration", {login, password, email});
 	};
-	
-	
+
+
 	return (
 		<Global.Provider value = {{user : props.auth.user, local : props.auth.local}}>
 			<div>
-				<Page_theme page={"User"} actions={actions} type = {type} setType={setType}/>
+				<Page_theme page={"User"} actions={actions} type = {type} setType={setType} indent={"47"}/>
 				<div  style = {{ position: "absolute", marginLeft:"11vw", marginTop:"2vh", height: "67vh", width: "85vw", background: "var(--colorBrownGray)", borderRadius: "5% 5% 5% 20%", boxShadow: "-2vw 2.5vh 10px 1px var(--colorShadowBackground)"}}>
 					<div style = {{ overflow: "hidden", position: "relative", marginLeft:"2vw", marginTop:"3vh", height: "63vh", width: "81vw", display:"grid", gridTemplateColumns: "20vw 60vw"}}>
 						<div style = {{marginLeft: "2vw", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", position: "relative", background: "var(--colorLightGray)", height: "45vh"}}>
-						
-						
-						
+
+
+
 						<div  style = {{margin:"2vh", fontSize: "2vh"}}>
 								<p style = {{display: "flex", justifyContent: "center", fontSize: "3vh"}}>Log panel:</p>
 								<div  style = {{marginLeft:"0.5vw", marginTop: "0.5vh"}}>
@@ -138,7 +138,7 @@ export default function MainComponent(props) {
 													))}
 												</select>
 											</div>
-											{selected_error == "login_error" && 
+											{selected_error == "login_error" &&
 											<div>
 												<p> It's error in "name" input field:</p>
 												<p> - must consist of 3-15 signs</p>
@@ -148,13 +148,13 @@ export default function MainComponent(props) {
 												<p> - It hadn't content 2 consecutive spaces</p>
 											</div>
 											}
-											{selected_error == "password_error" && 
+											{selected_error == "password_error" &&
 												<div>
 													<p> It's error in "login" input field:</p>
 													<p> Your written login contain invalid sign</p>
 												</div>
 											}
-											{selected_error == "email_error" && 
+											{selected_error == "email_error" &&
 												<div>
 													<p> It's error in "email" input field:</p>
 													<p> Your written email contain invalid sign</p>
@@ -164,37 +164,37 @@ export default function MainComponent(props) {
 									)}
 								</div>
 							</div>
-						
-						
-						
+
+
+
 						</div>
 						<div style = {{marginLeft: "3vw"}}>
 							<div id = {actions[0]} style = {{borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "left ", opacity: "1", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
-							
+
 									<div style= {{marginLeft: "2vw", marginTop: "3vh", position: "absolute"}} >
 										<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("authentication_error") ? ("visible") : ("collapse"), position: "absolute", width: "55%", height: "4vh", background: "red"}}></div>
 										<p style= {{fontSize: "3vh", marginRight: "1vw"}}>Enter to exist user:</p>
 										<div style= {{marginLeft: "2vw"}}>
-											
+
 											<div>
 													<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: (errors.includes("login_error") || errors.includes("email_error")) ? ("visible") : ("collapse"), position: "absolute", width: "55%", height: "4vh", background: "red"}}></div>
 													<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"2vh"}}>Login or email:</p>
-													<input 
+													<input
 														className={"text_field"}
 														style= {{marginLeft: "1.5vw", width: "15vw"}}
-														value={login} 
-														onChange={(e)=>setLogin(e.target.value)} 
+														value={login}
+														onChange={(e)=>setLogin(e.target.value)}
 														type="login" name="login" id="login" placeholder="Login"/>
 											</div>
-											
+
 											<div>
 													<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("password_error") ? ("visible") : ("collapse"), position: "absolute", width: "55%", height: "4vh", background: "red"}}></div>
 													<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"2vh"}}>Password:</p>
-													<input 
+													<input
 														className={"text_field"}
 														style= {{marginLeft: "1.5vw", width: "15vw"}}
-														value={password} 
-														onChange={(e)=>setPassword(e.target.value)} 
+														value={password}
+														onChange={(e)=>setPassword(e.target.value)}
 														type="password" name="password" id="password" placeholder="Password"/>
 											</div>
 										</div>
@@ -202,44 +202,44 @@ export default function MainComponent(props) {
 											<button className={"button_submit"} style= {{marginTop: "3vh", marginLeft:"22vw"}} onClick={()=>{SaveData()}}>Enter</button>
 										</div>
 									</div>
-							
+
 							</div>
 							<div id = {actions[1]} style = {{visibility: "collapse", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "right ", top:"-60vh", opacity: "0", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
-								
-								
+
+
 								<div  style = {{ fontSize:"5vh",marginTop:"2vh", marginLeft:"3vh", position:"absolute", width:"100%"}}>
 										<p style= {{fontSize: "3vh", marginRight: "1vw"}}>Create new user:</p>
 										<div style= {{marginLeft: "2vw"}}>
 											<div>
 													<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("login_error") ? ("visible") : ("collapse"), position: "absolute", width: "55%", height: "4vh", background: "red"}}></div>
 													<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"2vh"}}>Login:</p>
-													<input 
+													<input
 														className={"text_field"}
 														style= {{marginLeft: "1.5vw", width: "15vw"}}
-														value={login} 
-														onChange={(e)=>setLogin(e.target.value)} 
+														value={login}
+														onChange={(e)=>setLogin(e.target.value)}
 														type="login" name="login" id="login" placeholder="Login"/>
 											</div>
-											
+
 											<div>
 													<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("password_error") ? ("visible") : ("collapse"), position: "absolute", width: "55%", height: "4vh", background: "red"}}></div>
 													<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"2vh"}}>Password:</p>
-													<input 
+													<input
 														className={"text_field"}
 														style= {{marginLeft: "1.5vw", width: "15vw"}}
-														value={password} 
-														onChange={(e)=>setPassword(e.target.value)} 
+														value={password}
+														onChange={(e)=>setPassword(e.target.value)}
 														type="password" name="password" id="password" placeholder="Password"/>
 											</div>
-											
+
 											<div>
 													<div style={{zIndex: "-1", opacity: "0.5", marginLeft: "-0.5vw", visibility: errors.includes("email_error") ? ("visible") : ("collapse"), position: "absolute", width: "55%", height: "4vh", background: "red"}}></div>
 													<p style= {{fontSize: "2.5vh", marginRight: "1vw", marginTop:"2vh"}}>Email:</p>
-													<input 
+													<input
 														className={"text_field"}
 														style= {{marginLeft: "1.5vw", width: "15vw"}}
-														value={email} 
-														onChange={(e)=>setEmail(e.target.value)} 
+														value={email}
+														onChange={(e)=>setEmail(e.target.value)}
 														type="email" name="email" id="email" placeholder="Email"/>
 											</div>
 										</div>
@@ -247,10 +247,10 @@ export default function MainComponent(props) {
 											<button className={"button_submit"} style= {{marginTop: "3vh", marginLeft:"22vw"}} onClick={()=>{SaveData()}}>Create</button>
 										</div>
 									</div>
-									
-								
+
+
 							</div>
-							
+
 						</div>
 					</div>
 				</div>
