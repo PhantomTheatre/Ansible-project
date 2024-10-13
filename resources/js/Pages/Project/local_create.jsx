@@ -324,7 +324,7 @@ export default function MainComponent(props) {
 										{ local == "" ? (
 											<Finder name_of_table={"Your locals"}
 												objects={props.locals}
-												cats={['Name', 'Right', 'Count-of-members']}
+												cats={['name', 'Right', 'Count-of-members']}
 												grid_columns={'2vw 12vw 12vw 12vw 9vw 5vw'}
 												empty_label={"There are no hosts"}
 												select_function={GetLocal}/>
@@ -458,11 +458,11 @@ export default function MainComponent(props) {
 							</div>
 							<div id = {actions[2]} style = {{visibility: "collapse", borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "right ", top:"-120vh", opacity: "0", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
 									<Finder name_of_table={"Popular locals"}
-											objects={props.locals}
-											cats={['name', 'right']}
-											grid_columns={'2vw 9vw 8vw 9vw 9vw 5vw'}
-											empty_label={"There are no hosts"}
-											select_function={GetLocal}/>
+											objects={props.globalLocals}
+											cats={['name', 'Files', 'Description']}
+											grid_columns={'2vw 9vw 10vw 25vw'}
+											empty_label={"There are no locals"}
+											select_function={()=>{console.log("a")}}/>
 							</div>
 
 						</div>

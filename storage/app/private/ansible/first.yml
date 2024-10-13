@@ -1,0 +1,5 @@
+- name: 'First step'
+  hosts: all
+  become: yes
+  roles:
+   - Main

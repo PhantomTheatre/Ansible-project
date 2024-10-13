@@ -24,53 +24,107 @@ use Exception;
 class MainController extends Controller
 {
 	public function SelectedHosts_update() {
+        $this->SelectedLocals_update();
+        $selected_locals = Cache::store('database')->get('selected_locals');
+        $selected_hosts = array();
 		$user = Cache::store('database')->get('user');
-		$hosts = new host();
-		$selected_hosts = array();
-		foreach ($hosts->all() as $host) {
-			if (Cache::store('database')->get('local') != "none") {
-				if ($host->local == Cache::store('database')->get('local')) {
-					if  (Cache::store('database')->get('right') == "none"){
-						if ($host->global == 'true') {
-							$selected_hosts[$host->name] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login,
-								'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,
-								'created_by'=>$host->created_by, 'created_at'=>$host->created_at, 'updated_at'=>$host->updated_at];
-						}
-					} else {
-						$selected_hosts[$host->name] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login,
-							'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,
-							'created_by'=>$host->created_by, 'created_at'=>$host->created_at, 'updated_at'=>$host->updated_at];}
-				} else if ($host->local == 'none' and $host->created_by == $user) {
-					$selected_hosts[$host->name] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login,
-						'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,
-						'created_by'=>$host->created_by, 'created_at'=>$host->created_at, 'updated_at'=>$host->updated_at];
-				}
-			} else if ($host->created_by == $user){
-				$selected_hosts[$host->name] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login,
-					'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,
-					'created_by'=>$host->created_by, 'created_at'=>$host->created_at, 'updated_at'=>$host->updated_at];
-			}
-		}
-		Cache::store('database')->put('selected_hosts', $selected_hosts, 1800);
 
+        foreach ($selected_locals as $local) {
+            foreach (DB::table('hosts')->where('local', $local['name'])->get() as $host) {
+                if ($local['Right'] == "admin" or $local['Right'] == "write") {
+                    $selected_hosts[$host->id] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login,
+                        'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,
+                        'created_by'=>$host->created_by, 'created_at'=>$host->created_at, 'updated_at'=>$host->updated_at];
+                }
+            }
+        }
+        foreach (DB::table('hosts')->where('local', "none")->where('created_by', $user)->get() as $host) {
+            $selected_hosts[$host->id] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login,
+                'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,
+                'created_by'=>$host->created_by, 'created_at'=>$host->created_at, 'updated_at'=>$host->updated_at];
+        }
+        Cache::store('database')->put('selected_hosts', $selected_hosts, 1800);
 	}
+
+	public function SelectedHostsPlay_update() {
+        $this->SelectedLocals_update();
+        $selected_locals = Cache::store('database')->get('selected_locals');
+        $selected_hosts = array();
+		$user = Cache::store('database')->get('user');
+
+        foreach ($selected_locals as $local) {
+            foreach (DB::table('hosts')->where('local', $local['name'])->get() as $host) {
+                if ($local['Right'] == "admin" or $local['Right'] == "write") {
+                    $selected_hosts[$host->id] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login,
+                        'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,
+                        'created_by'=>$host->created_by, 'created_at'=>$host->created_at, 'updated_at'=>$host->updated_at];
+                } else if ($local['Right'] == "read") {
+                    $selected_hosts[$host->id] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login,
+                        'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,
+                        'created_by'=>$host->created_by, 'created_at'=>$host->created_at, 'updated_at'=>$host->updated_at];
+                } else if ($local['Right'] == "global" and $host['global'] == "1") {
+                    $selected_hosts[$host->id] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login,
+                        'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,
+                        'created_by'=>$host->created_by, 'created_at'=>$host->created_at, 'updated_at'=>$host->updated_at];
+                }
+            }
+        }
+        foreach (DB::table('hosts')->where('local', "none")->where('created_by', $user)->get() as $host) {
+            $selected_hosts[$host->id] = ['id'=>$host->id, 'ip'=>$host->ip, 'name'=>$host->name, 'login'=>$host->login,
+                'password'=>$host->password, 'group'=>$host->group, 'local'=>$host->local, 'global'=>$host->global,
+                'created_by'=>$host->created_by, 'created_at'=>$host->created_at, 'updated_at'=>$host->updated_at];
+        }
+        Cache::store('database')->put('selected_hosts', $selected_hosts, 1800);
+    }
 
 	public function SelectedRoles_update() {
-		$roles = new role();
-		$selected_roles = array();
-		foreach ($roles->all() as $role) {
-			if (Cache::store('database')->get('local') == "none") {
-				if ($role->created_by == Cache::store('database')->get('user')  and $role->local == "none") {
-					array_push($selected_roles,$role);
-				}
-			} else {
-				if ($role->local == Cache::store('database')->get('local')) {
-					array_push($selected_roles,$role);
-				}
-			}
-		}
-		Cache::store('database')->put('selected_roles', $selected_roles, 1800);
+        $this->SelectedLocals_update();
+        $selected_locals = Cache::store('database')->get('selected_locals');
+        $selected_roles = array();
+		$user = Cache::store('database')->get('user');
+
+        foreach ($selected_locals as $local) {
+            foreach (DB::table('roles')->where('local', $local['name'])->get() as $role) {
+                if ($local['Right'] == "admin" or $local['Right'] == "write") {
+                    $selected_roles[$role->id] = ['id'=>$role->id,'name'=>$role->name, 'group'=>$role->group,
+                            'global'=>$role->global,'created_by'=>$role->created_by, 'local'=>$role->local];
+                }
+            }
+        }
+        foreach (DB::table('roles')->where('local', "none")->where('created_by', $user)->get() as $role) {
+            $selected_roles[$role->id] = ['id'=>$role->id,'name'=>$role->name, 'group'=>$role->group,
+                            'global'=>$role->global,'created_by'=>$role->created_by, 'local'=>$role->local];
+        }
+        Cache::store('database')->put('selected_roles', $selected_roles, 1800);
 	}
+
+	public function SelectedRolesPlay_update() {
+        $this->SelectedLocals_update();
+        $selected_locals = Cache::store('database')->get('selected_locals');
+        $selected_roles = array();
+		$user = Cache::store('database')->get('user');
+
+        foreach ($selected_locals as $local) {
+            foreach (DB::table('roles')->where('local', $local['name'])->get() as $role) {
+                if ($local['Right'] == "admin" or $local['Right'] == "write") {
+                    $selected_roles[$role->id] = ['id'=>$role->id,'name'=>$role->name, 'group'=>$role->group,
+                            'global'=>$role->global,'created_by'=>$role->created_by, 'local'=>$role->local];
+                } else if ($local['Right'] == "read") {
+                    $selected_roles[$role->id] = ['id'=>$role->id,'name'=>$role->name, 'group'=>$role->group,
+                            'global'=>$role->global,'created_by'=>$role->created_by, 'local'=>$role->local];
+                } else if ($local['Right'] == "global" and $role['global'] == "1") {
+                    $selected_roles[$role->id] = ['id'=>$role->id,'name'=>$role->name, 'group'=>$role->group,
+                            'global'=>$role->global,'created_by'=>$role->created_by, 'local'=>$role->local];
+                }
+            }
+        }
+        foreach (DB::table('roles')->where('local', "none")->where('created_by', $user)->get() as $role) {
+            $selected_roles[$role->id] = ['id'=>$role->id,'name'=>$role->name, 'group'=>$role->group,
+                            'global'=>$role->global,'created_by'=>$role->created_by, 'local'=>$role->local];
+        }
+        Cache::store('database')->put('selected_roles', $selected_roles, 1800);
+    }
+
 	public function SelectedLocals_update() {
 		$selected_locals = array();
 		$get_user = Cache::store('database')->get('user');
@@ -86,7 +140,7 @@ class MainController extends Controller
                         }
                     }
                     $pass = DB::table('locals')->where('name', $local)->first()->password;
-                    $selected_locals[$local] = ['Name'=>$local, 'Right'=>$fileUser[$local], 'members' => $members, 'password'=> $pass, 'Count-of-members' =>count($members)];
+                    $selected_locals[$local] = ['name'=>$local, 'Right'=>$fileUser[$local], 'members' => $members, 'password'=> $pass, 'Count-of-members' =>count($members)];
                 }
             }
         }
@@ -95,29 +149,25 @@ class MainController extends Controller
 
    public function MainPage() {
 		if (Cache::store('database')->get('user') == null){
-			Cache::store('database')->put('user', Cookie::get('user', 'none'), 1800);
-			if (Cache::store('database')->get('user') != "none") {
-				$user = DB::table('myusers')->where('login', Cache::store('database')->get('user'))->first();
-				Cache::store('database')->put('local', $user->local, 1800);
-				Cache::store('database')->put('right', $user->right, 1800);
-			} else { Cache::store('database')->put('local', "none", 1800);}
-			$this->SelectedHosts_update();
-			$this->SelectedRoles_update();
+			Cache::store('database')->put('user', Cookie::get('user', 'none'), 7200);
 		}
 		return Inertia::render('Project/MainPage');
 	}
 
 	public function hosts() {
-        $this->SelectedHosts_update();
-        $this->SelectedLocals_update();
-        $new_locals = array();
-        foreach (Cache::store('database')->get('selected_locals') as $local) {
-            if ($local['Right'] == "admin" or $local['Right'] == "write") {
-                array_push($new_locals,$local['Name']);
+        if (Cache::store('database')->get('user') != "none") {
+            $this->SelectedHosts_update();
+            $new_locals = array();
+            foreach (Cache::store('database')->get('selected_locals') as $local) {
+                if ($local['Right'] == "admin" or $local['Right'] == "write") {
+                    array_push($new_locals,$local['name']);
+                }
             }
+            return Inertia::render('Project/hosts',  ['hosts' => Cache::store('database')->get('selected_hosts'), 'locals'=>$new_locals]);
+        } else {
+            return Inertia::render('Project/block');
         }
-        return Inertia::render('Project/hosts',  ['hosts' => Cache::store('database')->get('selected_hosts'), 'locals'=>$new_locals]);
-	}
+    }
 	public function save_hosts(Request $request) {
         foreach ($request->new_locals as $local) {
             $host = new host();
@@ -151,43 +201,26 @@ class MainController extends Controller
 	}
 
 	public function roles() {
-		if (Cache::store('database')->get('local') != "none" and (Cache::store('database')->get('right') == "read" or Cache::store('database')->get('right') == "none"))  {
-			return Inertia::render('Project/block', ['print' => 'Недостаточно прав']);
-		} else {
-
-			$user = Cache::store('database')->get('user');
-			$roles = new role();
-			$selected_roles = array();
-			foreach ($roles->all() as $role) {
-				if (Cache::store('database')->get('local') != "none") {
-					if ($role->local == Cache::store('database')->get('local')) {
-						if  (Cache::store('database')->get('right') == "none"){
-							if ($role->global == 'true') {
-								array_push($selected_roles,$role);
-							}
-						} else { array_push($selected_roles,$role);}
-					} else if ($role->local == 'none' and $role->created_by == $user) {
-						array_push($selected_roles,$role);
-					}
-				} else if ($role->created_by == $user){ array_push($selected_roles,$role);}
-			}
-			$codes = [];
-			foreach ($selected_roles as $role) {
-				$code = Storage::disk('local')->get("/ansible/roles/{$role->name}/tasks/main.yml");
-				$codes[$role->id] = $code;
-			}
-			$this->SelectedLocals_update();
+        if (Cache::store('database')->get('user') != "none") {
+            $this->SelectedRoles_update();
+            $codes = [];
+            foreach (Cache::store('database')->get('selected_roles') as $role) {
+                $code = Storage::disk('local')->get("/ansible/roles/{$role['name']}/tasks/main.yml");
+                $codes[$role['id']] = $code;
+            }
             $new_locals = array();
             foreach (Cache::store('database')->get('selected_locals') as $local) {
                 if ($local['Right'] == "admin" or $local['Right'] == "write") {
-                    array_push($new_locals,$local['Name']);
+                    array_push($new_locals,$local['name']);
                 }
             }
-			return Inertia::render('Project/roles', [ 'roles'=>$selected_roles, 'codes' => $codes, 'locals' => $new_locals]);
-		}
-	}
+            return Inertia::render('Project/roles', [ 'roles'=>Cache::store('database')->get('selected_roles'), 'codes' => $codes, 'locals' => $new_locals]);
+        } else {
+            return Inertia::render('Project/block');
+        }
+
+    }
 	public function save_roles(Request $request) {
-        dd($request->id);
 		$role = new role();
         foreach ($request->new_locals as $local) {
             $role->create(array('global' => $request->global_, 'name' => $request->name, 'group' => $request->group,
@@ -198,7 +231,7 @@ class MainController extends Controller
                 Storage::disk('local')->put("/ansible/roles/{$request->name}/tasks/main.yml", "{$request->code}");
             }
         }
-		return;
+		return redirect()->back();
 	}
 
 	public function roles_edit(Request $request) {
@@ -215,7 +248,7 @@ class MainController extends Controller
 			Storage::disk('local')->put("/ansible/roles/{$request->name}/tasks/main.yml", "{$request->code}");
 		}
 		DB::table('roles')->where('id', $request->id)->update(array('name'=>$request->name, 'group'=>$request->group, 'global'=>$request->global_));
-		return;
+		return redirect()->back();
 	}
 
 	public function roles_delete(Request $request) {
@@ -224,48 +257,24 @@ class MainController extends Controller
 		Storage::disk('local')->deleteDirectory("/ansible/roles/{$role->name}/tasks/");
 		Storage::disk('local')->deleteDirectory("/ansible/roles/{$role->name}/");
 		DB::table('roles')->where('id', $request->id)->delete();
-		return;
+		return redirect()->back();
 	}
 
 	public function play() {
-		$user = Cache::store('database')->get('user');
-		$hosts = new host();
-		$selected_hosts = array();
-		foreach ($hosts->all() as $host) {
-			if (Cache::store('database')->get('local') != "none") {
-				if ($host->local == Cache::store('database')->get('local')) {
-					if  (Cache::store('database')->get('right') == "none"){
-						if ($host->global == 'true') {
-							array_push($selected_hosts,$host);
-						}
-					} else { array_push($selected_hosts,$host);}
-				} else if ($host->local == 'none' and $host->created_by == $user) {
-					array_push($selected_hosts,$host);
-				}
-			} else if ($host->created_by == $user){ array_push($selected_hosts,$host);}
-		}
-		$roles = new role();
-		$selected_roles = array();
-		foreach ($roles->all() as $role) {
-			if (Cache::store('database')->get('local') != "none") {
-				if ($role->local == Cache::store('database')->get('local')) {
-					if  (Cache::store('database')->get('right') == "none"){
-						if ($role->global == 'true') {
-							array_push($selected_roles,$role);
-						}
-					} else { array_push($selected_roles,$role);}
-				} else if ($role->local == 'none' and $role->created_by == $user) {
-					array_push($selected_roles,$role);
-				}
-			} else if ($role->created_by == $user){ array_push($selected_roles,$role);}
-		}
+        if (Cache::store('database')->get('user') != "none") {
+            $user = Cache::store('database')->get('user');
+            $this->SelectedHostsPlay_update();
+            $this->SelectedRolesPlay_update();
 
-		$logs = [];
-		foreach (Storage::files("/users/{$user}/logs") as $log) {
-				array_push($logs, [Storage::disk('local')->get($log), $log]);
-		}
-		return Inertia::render('Project/play', ['logs'=>$logs, 'roles' =>$selected_roles, 'hosts' => $selected_hosts]);
-	}
+            $logs = [];
+            foreach (Storage::files("/users/{$user}/logs") as $log) {
+                    array_push($logs, [Storage::disk('local')->get($log), $log]);
+            }
+            return Inertia::render('Project/play', ['logs'=>$logs, 'roles' =>Cache::store('database')->get('selected_roles'), 'hosts' => Cache::store('database')->get('selected_hosts')]);
+        } else {
+            return Inertia::render('Project/block');
+        }
+    }
 
 	public function play_launch(Request $request) {
 		Storage::disk('local')->put('/ansible/hosts', "");
@@ -282,7 +291,7 @@ class MainController extends Controller
 			$role = DB::table('roles')->where('id', $el)->first();
 			Storage::disk('local')->append('/ansible/first.yml', "   - {$role->name}");
 		}
-		$result = Process::run('cd ../storage/app/ansible && ansible-playbook ./first.yml -i ./hosts ');
+		$result = Process::run('cd ../storage/app/private/ansible && ansible-playbook ./first.yml -i ./hosts ');
 
 		$user = Cache::store('database')->get('user');
 		date_default_timezone_set('UTC');
@@ -292,9 +301,14 @@ class MainController extends Controller
 	}
 
 	public function local() {
-		$this->SelectedLocals_update();
-		return Inertia::render('Project/local_create',  ['locals' => Cache::store('database')->get('selected_locals')] );
-	}
+        if (Cache::store('database')->get('user') != "none") {
+            $this->SelectedLocals_update();
+            $fileGlobalLocals = json_decode(json: (File::get( base_path("storage/app/private/locals/Global/GlobalLocals.json"))), associative: true);
+            return Inertia::render('Project/local_create',  ['locals' => Cache::store('database')->get('selected_locals'), 'globalLocals'=>$fileGlobalLocals] );
+        } else {
+            return Inertia::render('Project/block');
+        }
+    }
 
 	public function local_exit(Request $request) {
 		$get_user = Cache::store('database')->get('user');

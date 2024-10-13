@@ -151,9 +151,10 @@ export default function Roles(props) {
 			setCode("// some comment" );
 			setTask("");
 		} else if (typeFile == "write" && type == "edit") {
-			props.roles.forEach((el) =>{
-				if (id == el.id) {
-					setCode(props.codes[el.id]);
+            console.log(Object.entries(props.roles));
+			Object.entries(props.roles).forEach((el) =>{
+				if (id == el[1].id) {
+					setCode(props.codes[el[1].id]);
 					setTask(task);
 				};
 			});
@@ -356,7 +357,7 @@ export default function Roles(props) {
 													<Button_check setValue={setGlobal} value={global_} label={"Add global tag to this role"}/>
 												</div>
 												<div>
-													<button className={"button_submit"} style= {{width: "19vw", height: "5vh", fontSize: "3vh", marginTop: "6vh", marginLeft:"2vw"}} onClick={()=>{SaveData()}}>Create role</button>
+													<button className={"button_submit"} style= {{width: "19vw", height: "5vh", fontSize: "3vh", marginTop: "6vh", marginLeft:"2vw"}} onClick={()=>{saveData()}}>Create role</button>
 												</div>
 											</div>
 									</div>

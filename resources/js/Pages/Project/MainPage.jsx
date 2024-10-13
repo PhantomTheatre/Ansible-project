@@ -72,14 +72,14 @@ export default function MainComponent(props) {
 						<div style = {{marginLeft: "3vw"}}>
 							<div id = {actions[0]} style = {{borderRadius: "3%", boxShadow: "-1.6vw 2.5vh 10px 1px var(--colorShadowBrownGray)", transform: 'rotateY(0deg)',  transformOrigin: "left ", opacity: "1", position: "relative", background: "var(--colorLightGray)", height: "60vh"}}>
 
-							<div  style = {{ marginTop:"2vh", marginLeft:"3vh", position:"absolute", width:"100%"}}>
-								<p>Awz site </p>
-								<div  style = {{ fontSize:"2vh", marginTop:"0.5vh", marginLeft:"5vh", position:"absolute"}}>
-									<p>It is project to control ansible by web system </p>
-									<p>Created by Werzant </p>
-									<p>Some Links </p>
-								</div>
-							</div>
+                                <div style={{display:"flex", marginLeft:"2vw", flexDirection: "column"}}>
+                                    <b style = {{ fontSize: "5vh", margin: "5vh 0vw 0vw 3vw"}}>Awz site</b>
+                                    <p style = {{ fontSize: "2vh", margin: "0vh 0vw 0vw 3vw"}}> Free web-system for simplified work on setting up software using Ansible</p>
+                                    <p style = {{ fontSize: "2vh", margin: "4vh 0vw 0vw 5vw"}}> Write this email for complaints and suggestions</p>
+                                    <u style = {{ fontSize: "2vh", margin: "1vh 0vw 0vw 9vw"}}><i> -> e.karchevsky@mail.ru</i></u>
+                                    <p style = {{ fontSize: "2vh", margin: "1vh 0vw 0vw 5vw"}}> Use this card number for donations</p>
+                                    <u  style = {{ fontSize: "2vh", margin: "1vh 0vw 0vw 9vw"}}><i> -> XXXX</i></u>
+                              </div>
 
 							</div>
 						</div>
